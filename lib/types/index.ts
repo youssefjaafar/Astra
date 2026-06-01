@@ -63,6 +63,50 @@ export type AiInsight = {
   tone: SignalTone;
 };
 
+export type DashboardMission = {
+  topPriorities: string[];
+  nextEvent: {
+    title: string;
+    time: string;
+    context: string;
+  };
+  mainWorkTask: string;
+  mainPersonalTask: string;
+  courseCorrection: string;
+};
+
+export type DashboardSystemStatus = {
+  id: "hydration" | "nutrition" | "training" | "reading" | "prayer" | "meditation" | "sleep" | "screen-time";
+  name: string;
+  current: string;
+  target: string;
+  progress: number;
+  message: string;
+  tone: SignalTone;
+};
+
+export type DashboardTimeCategory = {
+  name: string;
+  hours: number;
+  fill: string;
+};
+
+export type DashboardCopilotInsight = {
+  title: string;
+  body: string;
+  confidence: number;
+  suggestedAction: string;
+};
+
+export type WeeklyMissionSnapshot = {
+  habitConsistency: string;
+  trainingSessions: string;
+  readingTime: string;
+  averageSleep: string;
+  distractionTime: string;
+  bestSignal: string;
+};
+
 export const quickCaptureSchema = z.object({
   entry: z.string().min(3, "Capture at least a few words."),
 });

@@ -7,3 +7,11 @@ export { workouts, workouts as workoutHistory } from "./workouts";
 export { waterLogs } from "./water-logs";
 export { reviewPrompts, weeklySignals } from "./reviews";
 export { aiInsights } from "./ai-insights";
+export {
+  dashboardCopilotInsight,
+  dashboardHero,
+  dashboardMission,
+  dashboardSystemStatuses,
+  dashboardTimeDistribution,
+  weeklyMissionSnapshot,
+} from "./dashboard";
