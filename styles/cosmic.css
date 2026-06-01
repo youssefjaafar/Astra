@@ -4,3 +4,256 @@
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 56px 56px;
 }
+
+.astra-cockpit-background {
+  --mx: 0;
+  --my: 0;
+  perspective: 1200px;
+}
+
+.astra-nebula-layer {
+  position: absolute;
+  inset: -10%;
+  transform: translate3d(calc(var(--mx) * -28px), calc(var(--my) * -24px), 0) scale(1.04);
+  background:
+    radial-gradient(circle at 22% 26%, rgba(14, 165, 233, 0.28), transparent 30%),
+    radial-gradient(circle at 74% 18%, rgba(124, 58, 237, 0.24), transparent 28%),
+    radial-gradient(circle at 62% 76%, rgba(6, 182, 212, 0.16), transparent 34%),
+    linear-gradient(135deg, rgba(2, 6, 23, 1), rgba(15, 23, 42, 0.96) 48%, rgba(30, 27, 75, 0.78));
+  filter: saturate(1.08);
+  animation: astra-nebula-drift 26s ease-in-out infinite alternate;
+}
+
+.astra-star-layer {
+  position: absolute;
+  inset: -8%;
+  background-repeat: repeat;
+  will-change: transform;
+}
+
+.astra-star-layer-far {
+  opacity: 0.34;
+  transform: translate3d(calc(var(--mx) * -16px), calc(var(--my) * -12px), 0);
+  background-image: radial-gradient(rgba(226, 232, 240, 0.58) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: astra-stars-far 70s linear infinite;
+}
+
+.astra-star-layer-mid {
+  opacity: 0.32;
+  transform: translate3d(calc(var(--mx) * -34px), calc(var(--my) * -26px), 0);
+  background-image: radial-gradient(rgba(103, 232, 249, 0.54) 1px, transparent 1px);
+  background-size: 96px 96px;
+  animation: astra-stars-mid 48s linear infinite;
+}
+
+.astra-star-layer-near {
+  opacity: 0.18;
+  transform: translate3d(calc(var(--mx) * -58px), calc(var(--my) * -44px), 0);
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+    radial-gradient(rgba(125, 211, 252, 0.8) 1px, transparent 1px);
+  background-position: 0 0, 36px 54px;
+  background-size: 128px 128px;
+  animation: astra-stars-near 34s linear infinite;
+}
+
+.astra-grid-layer {
+  position: absolute;
+  inset: -12%;
+  opacity: 0.13;
+  transform: translate3d(calc(var(--mx) * -18px), calc(var(--my) * -14px), 0);
+}
+
+.astra-warp-lane {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.42), transparent);
+  opacity: 0.5;
+  transform: translate3d(calc(var(--mx) * -36px), calc(var(--my) * -16px), 0);
+}
+
+.astra-warp-lane-a {
+  top: 19%;
+  animation: astra-pulse-line 4.8s ease-in-out infinite;
+}
+
+.astra-warp-lane-b {
+  bottom: 17%;
+  opacity: 0.28;
+  animation: astra-pulse-line 6.2s ease-in-out infinite reverse;
+}
+
+.astra-cockpit-window {
+  position: absolute;
+  inset: 20px 24px 28px;
+  border: 1px solid rgba(125, 211, 252, 0.16);
+  border-bottom-color: rgba(125, 211, 252, 0.06);
+  border-radius: 34px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+    inset 0 0 90px rgba(14, 165, 233, 0.06);
+  transform: translate3d(calc(var(--mx) * 18px), calc(var(--my) * 12px), 0);
+}
+
+.astra-cockpit-window::before,
+.astra-cockpit-window::after {
+  content: "";
+  position: absolute;
+  top: 18%;
+  bottom: 18%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(125, 211, 252, 0.18), transparent);
+}
+
+.astra-cockpit-window::before {
+  left: 18%;
+}
+
+.astra-cockpit-window::after {
+  right: 18%;
+}
+
+.astra-cockpit-hud {
+  position: absolute;
+  width: 220px;
+  height: 160px;
+  border: 1px solid rgba(125, 211, 252, 0.12);
+  opacity: 0.28;
+  transform: translate3d(calc(var(--mx) * 28px), calc(var(--my) * 18px), 0);
+}
+
+.astra-cockpit-hud-left {
+  left: -58px;
+  top: 36%;
+  border-radius: 0 34px 34px 0;
+  border-left: 0;
+}
+
+.astra-cockpit-hud-right {
+  right: -58px;
+  top: 28%;
+  border-radius: 34px 0 0 34px;
+  border-right: 0;
+}
+
+.astra-cockpit-console {
+  position: absolute;
+  left: 50%;
+  bottom: -170px;
+  width: min(860px, 78vw);
+  height: 270px;
+  transform: translate3d(calc(-50% + var(--mx) * 38px), calc(var(--my) * 18px), 0);
+  border: 1px solid rgba(125, 211, 252, 0.14);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(103, 232, 249, 0.16), transparent 24%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.96));
+  box-shadow:
+    0 -18px 80px rgba(14, 165, 233, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.astra-cockpit-console::before,
+.astra-cockpit-console::after {
+  content: "";
+  position: absolute;
+  top: 48px;
+  width: 28%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.34), transparent);
+}
+
+.astra-cockpit-console::before {
+  left: 13%;
+}
+
+.astra-cockpit-console::after {
+  right: 13%;
+}
+
+.astra-cockpit-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 42%, transparent 0, transparent 45%, rgba(2, 6, 23, 0.32) 76%, rgba(2, 6, 23, 0.72) 100%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.22), transparent 24%, transparent 72%, rgba(2, 6, 23, 0.66));
+}
+
+@keyframes astra-nebula-drift {
+  from {
+    filter: hue-rotate(0deg) saturate(1.04);
+  }
+
+  to {
+    filter: hue-rotate(12deg) saturate(1.16);
+  }
+}
+
+@keyframes astra-stars-far {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: -80px 80px;
+  }
+}
+
+@keyframes astra-stars-mid {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: -140px 110px;
+  }
+}
+
+@keyframes astra-stars-near {
+  from {
+    background-position: 0 0, 36px 54px;
+  }
+
+  to {
+    background-position: -220px 180px, -184px 234px;
+  }
+}
+
+@keyframes astra-pulse-line {
+  0%,
+  100% {
+    opacity: 0.16;
+  }
+
+  50% {
+    opacity: 0.58;
+  }
+}
+
+@media (max-width: 768px) {
+  .astra-cockpit-window {
+    inset: 12px;
+    border-radius: 22px;
+  }
+
+  .astra-cockpit-hud {
+    display: none;
+  }
+
+  .astra-cockpit-console {
+    bottom: -205px;
+    width: 112vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .astra-nebula-layer,
+  .astra-star-layer,
+  .astra-warp-lane {
+    animation: none;
+  }
+}
