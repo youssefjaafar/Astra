@@ -8,8 +8,9 @@ import { Topbar } from "@/components/layout/Topbar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const shelllessRoutes = ["/", "/login", "/signup", "/onboarding"];
 
-  if (pathname === "/") {
+  if (shelllessRoutes.includes(pathname)) {
     return <>{children}</>;
   }
 

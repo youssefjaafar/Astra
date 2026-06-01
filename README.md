@@ -45,9 +45,21 @@ supabase db push
 
 The initial migration creates tables for profiles, tasks, habits, time tracking, meals, water, workouts, prayer, meditation, reading, reviews, AI insights, and quick captures. Row Level Security is enabled on every table so authenticated users can only access their own rows.
 
+The second migration creates `user_preferences`, which stores onboarding targets such as wake time, sleep time, hydration, reading, workouts, meditation, prayer tracking, and screen-time limits. The app uses the presence of a `user_preferences` row to decide whether onboarding is complete.
+
 Supabase helper clients live in:
 
 - `lib/supabase/client.ts` for browser/client components using the anon key
 - `lib/supabase/server.ts` for server-side clients and service-role usage
 
 Manual database types live in `lib/types/database.ts`.
+
+## Auth Flow
+
+- `/login` supports email/password login and magic link login.
+- `/signup` creates a Supabase Auth user and redirects to `/onboarding`.
+- `/onboarding` stores the user profile and initial preferences.
+- Main app routes are protected by `middleware.ts`.
+- Unauthenticated users are redirected to `/login`.
+- Authenticated users without onboarding preferences are redirected to `/onboarding`.
+- The app shell shows the display name, current date, Astra Online status, navigation, and logout.

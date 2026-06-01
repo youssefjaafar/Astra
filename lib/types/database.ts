@@ -24,6 +24,7 @@ export type Database = {
           updated_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
+        Relationships: [];
       };
       tasks: {
         Row: {
@@ -53,6 +54,7 @@ export type Database = {
           updated_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["tasks"]["Insert"]>;
+        Relationships: [];
       };
       habits: {
         Row: {
@@ -80,6 +82,7 @@ export type Database = {
           updated_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["habits"]["Insert"]>;
+        Relationships: [];
       };
       habit_logs: {
         Row: {
@@ -99,6 +102,7 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["habit_logs"]["Insert"]>;
+        Relationships: [];
       };
       time_blocks: {
         Row: {
@@ -152,6 +156,7 @@ export type Database = {
           created_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["time_blocks"]["Insert"]>;
+        Relationships: [];
       };
       meals: {
         Row: {
@@ -179,6 +184,7 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["meals"]["Insert"]>;
+        Relationships: [];
       };
       water_logs: {
         Row: {
@@ -194,6 +200,7 @@ export type Database = {
           logged_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["water_logs"]["Insert"]>;
+        Relationships: [];
       };
       workouts: {
         Row: {
@@ -217,6 +224,7 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["workouts"]["Insert"]>;
+        Relationships: [];
       };
       prayer_logs: {
         Row: {
@@ -236,6 +244,7 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["prayer_logs"]["Insert"]>;
+        Relationships: [];
       };
       meditation_logs: {
         Row: {
@@ -255,6 +264,7 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["meditation_logs"]["Insert"]>;
+        Relationships: [];
       };
       reading_logs: {
         Row: {
@@ -276,6 +286,7 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["reading_logs"]["Insert"]>;
+        Relationships: [];
       };
       daily_reviews: {
         Row: {
@@ -307,6 +318,7 @@ export type Database = {
           updated_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["daily_reviews"]["Insert"]>;
+        Relationships: [];
       };
       weekly_reviews: {
         Row: {
@@ -334,6 +346,7 @@ export type Database = {
           created_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["weekly_reviews"]["Insert"]>;
+        Relationships: [];
       };
       ai_insights: {
         Row: {
@@ -361,6 +374,7 @@ export type Database = {
           created_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["ai_insights"]["Insert"]>;
+        Relationships: [];
       };
       quick_captures: {
         Row: {
@@ -382,6 +396,41 @@ export type Database = {
           created_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["quick_captures"]["Insert"]>;
+        Relationships: [];
+      };
+      user_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          main_goal: string | null;
+          wake_time: string | null;
+          sleep_time: string | null;
+          water_target_ml: number | null;
+          reading_target_minutes: number | null;
+          workout_target_weekly: number | null;
+          meditation_target_minutes: number | null;
+          prayer_tracking_enabled: boolean | null;
+          screen_time_limit_minutes: number | null;
+          created_at: Timestamp | null;
+          updated_at: Timestamp | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          main_goal?: string | null;
+          wake_time?: string | null;
+          sleep_time?: string | null;
+          water_target_ml?: number | null;
+          reading_target_minutes?: number | null;
+          workout_target_weekly?: number | null;
+          meditation_target_minutes?: number | null;
+          prayer_tracking_enabled?: boolean | null;
+          screen_time_limit_minutes?: number | null;
+          created_at?: Timestamp | null;
+          updated_at?: Timestamp | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["user_preferences"]["Insert"]>;
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

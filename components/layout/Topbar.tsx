@@ -1,17 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, Search, Signal, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { CalendarDays, LogOut, Search, Signal, Sparkles, UserCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function Topbar() {
+  const router = useRouter();
+  const [displayName, setDisplayName] = useState("Commander");
   const currentDate = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     month: "short",
     day: "numeric",
   }).format(new Date());
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProfile() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user || cancelled) {
+          return;
+        }
+
+        const { data } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (!cancelled) {
+          setDisplayName(data?.display_name || user.email?.split("@")[0] || "Commander");
+        }
+      } catch {
+        setDisplayName("Commander");
+      }
+    }
+
+    loadProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleLogout() {
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl lg:left-72">
@@ -39,8 +86,15 @@ export function Topbar() {
             <Signal className="mr-1 h-3 w-3" />
             Astra Online
           </Badge>
+          <Badge className="hidden md:inline-flex" tone="neutral">
+            <UserCircle className="mr-1 h-3 w-3" />
+            {displayName}
+          </Badge>
           <Button asChild size="sm">
             <Link href="/ai">Quick Capture</Link>
+          </Button>
+          <Button aria-label="Log out" onClick={handleLogout} size="icon" type="button" variant="secondary">
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>
