@@ -383,7 +383,16 @@ export type Database = {
           raw_text: string;
           parsed_type: string | null;
           parsed_payload: Json | null;
-          status: "pending" | "parsed" | "applied" | "failed" | "ignored" | null;
+          status:
+            | "pending"
+            | "parsed"
+            | "applied"
+            | "failed"
+            | "ignored"
+            | "needs_confirmation"
+            | "confirmed"
+            | "cancelled"
+            | null;
           created_at: Timestamp | null;
         };
         Insert: {
@@ -392,7 +401,16 @@ export type Database = {
           raw_text: string;
           parsed_type?: string | null;
           parsed_payload?: Json | null;
-          status?: "pending" | "parsed" | "applied" | "failed" | "ignored" | null;
+          status?:
+            | "pending"
+            | "parsed"
+            | "applied"
+            | "failed"
+            | "ignored"
+            | "needs_confirmation"
+            | "confirmed"
+            | "cancelled"
+            | null;
           created_at?: Timestamp | null;
         };
         Update: Partial<Database["public"]["Tables"]["quick_captures"]["Insert"]>;

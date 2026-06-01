@@ -25,6 +25,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 AI_PROVIDER=
 OPENAI_API_KEY=
+OPENAI_BASE_URL=
+OPENAI_MODEL=
 ```
 
 Only `NEXT_PUBLIC_*` values are safe for browser code. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only.
@@ -63,3 +65,16 @@ Manual database types live in `lib/types/database.ts`.
 - Unauthenticated users are redirected to `/login`.
 - Authenticated users without onboarding preferences are redirected to `/onboarding`.
 - The app shell shows the display name, current date, Astra Online status, navigation, and logout.
+
+## AI Quick Capture
+
+The dashboard Quick Capture flow stores the raw text in `quick_captures`, calls the server-only parser at `/api/ai/quick-capture`, then waits for user confirmation before writing a structured record.
+
+The AI provider is isolated in `lib/ai/provider.ts`. By default it uses an OpenAI-compatible chat completions endpoint:
+
+- `AI_PROVIDER=openai`
+- `OPENAI_API_KEY=<server-only key>`
+- `OPENAI_BASE_URL=https://api.openai.com/v1`
+- `OPENAI_MODEL=gpt-4o-mini`
+
+Do not expose `OPENAI_API_KEY` to client code.
