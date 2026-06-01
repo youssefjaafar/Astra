@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Crosshair, Orbit, Radar, Signal } from "lucide-react";
+import { Crosshair, Orbit, RadioTower, Signal } from "lucide-react";
 
 import { GlassCard, ProgressRing } from "@/components/astra";
 import { Badge } from "@/components/ui/badge";
@@ -49,17 +49,19 @@ export function CommandCenterHero({ dayCompletion, focusState, statusLine }: Com
           </div>
         </div>
 
-        <div className="relative mx-auto grid h-64 w-full max-w-[300px] place-items-center">
-          <div className="absolute h-56 w-56 rounded-full border border-cyan-200/15" />
-          <div className="absolute h-40 w-40 rounded-full border border-violet-200/15" />
-          <div className="absolute h-px w-56 animate-pulseLine bg-gradient-to-r from-transparent via-cyan-200/50 to-transparent" />
-          <div className="absolute h-56 w-56 animate-[spin_18s_linear_infinite] rounded-full border border-transparent border-t-cyan-200/40" />
-          <div className="absolute grid h-20 w-20 place-items-center rounded-full border border-cyan-200/20 bg-slate-950/80 shadow-glow">
-            <Radar className="h-8 w-8 text-cyan-200" />
+        <div className="relative mx-auto grid h-64 w-full max-w-[300px] place-items-center overflow-hidden rounded-xl border border-white/10 bg-slate-950/35">
+          <div className="absolute h-56 w-56 rounded-full border border-cyan-200/12" />
+          <div className="absolute h-40 w-40 rounded-full border border-violet-200/12" />
+          <div className="absolute h-px w-56 animate-pulseLine bg-gradient-to-r from-transparent via-cyan-200/35 to-transparent" />
+          <div className="absolute w-px h-56 animate-pulseLine bg-gradient-to-b from-transparent via-violet-200/20 to-transparent" />
+          <div className="absolute h-56 w-56 animate-[spin_22s_linear_infinite] rounded-full border border-transparent border-t-cyan-200/30" />
+          <div className="absolute h-32 w-32 rounded-full bg-cyan-200/5 blur-xl" />
+          <ProgressRing className="relative z-10" label="day" size={138} tone="cyan" value={dayCompletion} />
+          <div className="absolute right-7 top-7 grid h-10 w-10 place-items-center rounded-full border border-cyan-200/20 bg-cyan-200/10">
+            <RadioTower className="h-4 w-4 text-cyan-100/80" />
           </div>
-          <ProgressRing className="absolute" label="day" size={132} tone="cyan" value={dayCompletion} />
-          <Crosshair className="absolute bottom-6 left-8 h-5 w-5 text-violet-200/70" />
-          <Orbit className="absolute right-8 top-7 h-5 w-5 text-cyan-200/70" />
+          <Crosshair className="absolute bottom-7 left-8 h-5 w-5 text-violet-200/60" />
+          <Orbit className="absolute bottom-9 right-10 h-5 w-5 text-cyan-200/60" />
         </div>
       </div>
     </GlassCard>
