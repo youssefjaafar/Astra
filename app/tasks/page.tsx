@@ -1,10 +1,32 @@
-import { PlaceholderPage } from "@/components/astra";
+import { redirect } from "next/navigation";
 
-export default function TasksPage() {
+import { TasksModule } from "@/components/astra/tasks/TasksModule";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
+
+export default async function TasksPage() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("due_at", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false });
+
   return (
-    <PlaceholderPage
-      title="Tasks"
-      description="Work tasks, personal tasks, reminders, and the short mission queue for today."
+    <TasksModule
+      initialError={error?.message ?? null}
+      initialTasks={data ?? []}
+      userId={user.id}
     />
   );
 }
