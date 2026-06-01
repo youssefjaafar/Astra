@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { AppShell } from "@/components/app-shell";
+import { AppShell } from "@/components/layout/AppShell";
 import { CosmicBackground } from "@/components/cosmic-background";
 import "./globals.css";
 
