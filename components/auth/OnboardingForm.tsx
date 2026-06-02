@@ -118,7 +118,7 @@ export function OnboardingForm() {
           <Input type="time" {...form.register("sleepTime")} />
         </Field>
         <Field label="Water target in ml" error={form.formState.errors.waterTargetMl?.message}>
-          <Input type="number" min={1} step={50} {...form.register("waterTargetMl")} />
+          <Input type="number" min={50} step={50} {...form.register("waterTargetMl")} />
         </Field>
         <Field label="Reading minutes per day" error={form.formState.errors.readingTargetMinutes?.message}>
           <Input type="number" min={0} {...form.register("readingTargetMinutes")} />
