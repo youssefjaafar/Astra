@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, LogIn, Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getSafeRedirectPath } from "@/lib/auth/redirect";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
@@ -25,6 +26,12 @@ export function LoginForm() {
     },
   });
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get("error");
+    if (authError) setError(authError);
+  }, []);
+
   async function onSubmit(values: LoginInput) {
     setError(null);
     const supabase = createSupabaseBrowserClient();
@@ -35,7 +42,8 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/dashboard");
+    const nextPath = getSafeRedirectPath(new URLSearchParams(window.location.search).get("next"), "/dashboard");
+    router.replace(nextPath);
     router.refresh();
   }
 
@@ -56,7 +64,7 @@ export function LoginForm() {
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
       },
     });
 

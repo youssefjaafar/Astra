@@ -15,6 +15,7 @@ import { signupSchema, type SignupInput } from "@/lib/validations/auth";
 export function SignupForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -26,12 +27,13 @@ export function SignupForm() {
 
   async function onSubmit(values: SignupInput) {
     setError(null);
+    setConfirmationMessage(null);
     const supabase = createSupabaseBrowserClient();
     const { data, error: signupError } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/onboarding`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
       },
     });
 
@@ -40,20 +42,29 @@ export function SignupForm() {
       return;
     }
 
-    if (data.session && data.user) {
-      await supabase.from("profiles").upsert(
-        {
-          user_id: data.user.id,
-          display_name: values.email.split("@")[0],
-        },
-        {
-          onConflict: "user_id",
-          ignoreDuplicates: true,
-        },
-      );
+    if (!data.session || !data.user) {
+      setConfirmationMessage("Check your email to confirm your account. After confirmation, Astra will route you into onboarding.");
+      form.reset();
+      return;
     }
 
-    router.push("/onboarding");
+    const { error: profileError } = await supabase.from("profiles").upsert(
+      {
+        user_id: data.user.id,
+        display_name: values.email.split("@")[0],
+      },
+      {
+        onConflict: "user_id",
+        ignoreDuplicates: true,
+      },
+    );
+
+    if (profileError) {
+      setError(profileError.message);
+      return;
+    }
+
+    router.replace("/onboarding");
     router.refresh();
   }
 
@@ -90,6 +101,9 @@ export function SignupForm() {
       </div>
 
       {error ? <p className="rounded-md border border-amber-200/20 bg-amber-200/10 p-3 text-sm text-amber-100">{error}</p> : null}
+      {confirmationMessage ? (
+        <p className="rounded-md border border-cyan-200/20 bg-cyan-200/10 p-3 text-sm text-cyan-100">{confirmationMessage}</p>
+      ) : null}
 
       <Button className="w-full" disabled={form.formState.isSubmitting} type="submit">
         {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
