@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getAuthErrorMessage } from "@/lib/auth/errors";
 import { getSafeRedirectPath } from "@/lib/auth/redirect";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
@@ -38,7 +39,7 @@ export function LoginForm() {
     const { error: loginError } = await supabase.auth.signInWithPassword(values);
 
     if (loginError) {
-      setError(loginError.message);
+      setError(getAuthErrorMessage(loginError));
       return;
     }
 
@@ -71,7 +72,7 @@ export function LoginForm() {
     setMagicLinkLoading(false);
 
     if (otpError) {
-      setError(otpError.message);
+      setError(getAuthErrorMessage(otpError));
       return;
     }
 
