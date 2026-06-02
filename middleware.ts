@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { isMissingTableError } from "@/lib/supabase/errors";
 import type { Database } from "@/lib/types/database";
 
 const protectedRoutes = [
@@ -87,11 +88,13 @@ async function userHasPreferences(
   supabase: ReturnType<typeof createServerClient<Database>>,
   userId: string,
 ) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("user_preferences")
     .select("id")
     .eq("user_id", userId)
     .maybeSingle();
+
+  if (error && isMissingTableError(error)) return false;
 
   return Boolean(data);
 }
@@ -101,7 +104,7 @@ async function ensureProfileExists(
   userId: string,
   email: string | null,
 ) {
-  await supabase.from("profiles").upsert(
+  const { error } = await supabase.from("profiles").upsert(
     {
       user_id: userId,
       display_name: email?.split("@")[0] ?? "Commander",
@@ -111,6 +114,8 @@ async function ensureProfileExists(
       ignoreDuplicates: true,
     },
   );
+
+  if (error && !isMissingTableError(error)) return;
 }
 
 export const config = {

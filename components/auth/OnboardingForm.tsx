@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
 import { onboardingSchema, type OnboardingInput } from "@/lib/validations/auth";
 
 const fallbackTimezone = "America/Detroit";
@@ -48,22 +49,6 @@ export function OnboardingForm() {
       return;
     }
 
-    const { error: profileError } = await supabase.from("profiles").upsert(
-      {
-        user_id: user.id,
-        display_name: values.displayName,
-        timezone: values.timezone,
-      },
-      {
-        onConflict: "user_id",
-      },
-    );
-
-    if (profileError) {
-      setError(profileError.message);
-      return;
-    }
-
     const { error: preferencesError } = await supabase.from("user_preferences").upsert(
       {
         user_id: user.id,
@@ -83,7 +68,27 @@ export function OnboardingForm() {
     );
 
     if (preferencesError) {
-      setError(preferencesError.message);
+      setError(
+        isMissingTableError(preferencesError)
+          ? getDatabaseSetupMessage("public.user_preferences")
+          : preferencesError.message,
+      );
+      return;
+    }
+
+    const { error: profileError } = await supabase.from("profiles").upsert(
+      {
+        user_id: user.id,
+        display_name: values.displayName,
+        timezone: values.timezone,
+      },
+      {
+        onConflict: "user_id",
+      },
+    );
+
+    if (profileError && !isMissingTableError(profileError)) {
+      setError(profileError.message);
       return;
     }
 

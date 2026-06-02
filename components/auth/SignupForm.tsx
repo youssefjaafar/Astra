@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { isMissingTableError } from "@/lib/supabase/errors";
 import { authEmailSchema, signupSchema, type SignupInput } from "@/lib/validations/auth";
 
 export function SignupForm() {
@@ -65,7 +66,7 @@ export function SignupForm() {
       },
     );
 
-    if (profileError) {
+    if (profileError && !isMissingTableError(profileError)) {
       setError(profileError.message);
       return;
     }

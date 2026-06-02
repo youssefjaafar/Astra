@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getSafeRedirectPath } from "@/lib/auth/redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isMissingTableError } from "@/lib/supabase/errors";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    await supabase.from("profiles").upsert(
+    const { error: profileError } = await supabase.from("profiles").upsert(
       {
         user_id: user.id,
         display_name: user.email?.split("@")[0] ?? "Commander",
@@ -38,6 +39,12 @@ export async function GET(request: NextRequest) {
         ignoreDuplicates: true,
       },
     );
+
+    if (profileError && !isMissingTableError(profileError)) {
+      const loginUrl = new URL("/login", requestUrl.origin);
+      loginUrl.searchParams.set("error", profileError.message);
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
   return NextResponse.redirect(new URL(next, requestUrl.origin));
