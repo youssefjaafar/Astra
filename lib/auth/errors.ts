@@ -9,7 +9,7 @@ export function getAuthErrorMessage(error: AuthErrorLike | null | undefined, fal
   const message = rawMessage.toLowerCase();
 
   if (message.includes("rate limit")) {
-    return "Supabase is rate-limiting emails for this address. Wait a few minutes before requesting another confirmation link.";
+    return "Supabase is rate-limiting auth emails for this project right now. Wait a few minutes before requesting another confirmation link, or configure custom SMTP for higher limits.";
   }
 
   if (message.includes("email not confirmed") || message.includes("not confirmed")) {
