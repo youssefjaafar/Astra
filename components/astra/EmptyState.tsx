@@ -7,9 +7,10 @@ type EmptyStateProps = {
   title: string;
   description: string;
   actionLabel?: string;
+  onAction?: () => void;
 };
 
-export function EmptyState({ title, description, actionLabel = "Log a signal" }: EmptyStateProps) {
+export function EmptyState({ title, description, actionLabel = "Log a signal", onAction }: EmptyStateProps) {
   return (
     <GlassCard className="grid min-h-[340px] place-items-center p-8 text-center">
       <div className="max-w-md">
@@ -18,9 +19,11 @@ export function EmptyState({ title, description, actionLabel = "Log a signal" }:
         </div>
         <h2 className="mt-5 text-xl font-semibold text-white">{title}</h2>
         <p className="mt-3 text-sm leading-6 text-slate-400">{description}</p>
-        <Button className="mt-6" variant="secondary">
-          {actionLabel}
-        </Button>
+        {onAction ? (
+          <Button className="mt-6" onClick={onAction} type="button" variant="secondary">
+            {actionLabel}
+          </Button>
+        ) : null}
       </div>
     </GlassCard>
   );

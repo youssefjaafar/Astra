@@ -17,13 +17,12 @@ type HabitGridProps = {
 export function HabitGrid({ habits, onComplete, onLog, onEdit, onNewHabit }: HabitGridProps) {
   if (habits.length === 0) {
     return (
-      <button className="block w-full text-left" onClick={onNewHabit} type="button">
-        <EmptyState
-          title="No systems configured yet. Start with one small signal."
-          description="Add hydration, reading, prayer, meditation, focus, or any custom system you want Astra to track."
-          actionLabel="New Habit"
-        />
-      </button>
+      <EmptyState
+        actionLabel="New Habit"
+        description="Add hydration, reading, prayer, meditation, focus, or any custom system you want Astra to track."
+        onAction={onNewHabit}
+        title="No systems configured yet. Start with one small signal."
+      />
     );
   }
 

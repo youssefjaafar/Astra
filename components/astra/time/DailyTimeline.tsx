@@ -28,13 +28,12 @@ export function DailyTimeline({ blocks, onEdit, onDelete, onNewBlock }: DailyTim
 
   if (sorted.length === 0) {
     return (
-      <button className="block w-full text-left" onClick={onNewBlock} type="button">
-        <EmptyState
-          actionLabel="Log Time Block"
-          description="No time signals logged yet. Start tracking one block to bring your day into orbit."
-          title="Your time map is clear."
-        />
-      </button>
+      <EmptyState
+        actionLabel="Log Time Block"
+        description="No time signals logged yet. Start tracking one block to bring your day into orbit."
+        onAction={onNewBlock}
+        title="Your time map is clear."
+      />
     );
   }
 
