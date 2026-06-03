@@ -48,7 +48,7 @@ export function Sidebar() {
         <nav className="mt-8 space-y-2">
           {navItems.map((item) => {
             const Icon = navIcons[item.href as keyof typeof navIcons] ?? Home;
-            const active = pathname === item.href;
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link

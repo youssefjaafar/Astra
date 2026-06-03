@@ -99,12 +99,14 @@ export type DashboardCopilotInsight = {
 };
 
 export type WeeklyMissionSnapshot = {
-  habitConsistency: string;
+  taskCompletion: string;
+  habitLogs: string;
   trainingSessions: string;
-  readingTime: string;
-  averageSleep: string;
+  readingMinutes: string;
+  meditationMinutes: string;
+  prayerCompletion: string;
+  hydrationAverage: string;
   distractionTime: string;
-  bestSignal: string;
 };
 
 export const quickCaptureSchema = z.object({

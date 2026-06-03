@@ -1,15 +1,17 @@
-import { BookOpen, Dumbbell, Moon, Radar, ShieldCheck, TimerOff } from "lucide-react";
+import { BookOpen, CheckCircle2, Droplets, Dumbbell, Moon, ScrollText, ShieldCheck, TimerOff } from "lucide-react";
 
 import { GlassCard, SectionHeader } from "@/components/astra";
 import type { WeeklyMissionSnapshot as WeeklyMissionSnapshotType } from "@/lib/types";
 
 const snapshotItems = [
-  { key: "habitConsistency", label: "Habit consistency", icon: ShieldCheck },
+  { key: "taskCompletion", label: "Task completion", icon: CheckCircle2 },
+  { key: "habitLogs", label: "Habit logs", icon: ShieldCheck },
   { key: "trainingSessions", label: "Training sessions", icon: Dumbbell },
-  { key: "readingTime", label: "Reading time", icon: BookOpen },
-  { key: "averageSleep", label: "Average sleep", icon: Moon },
+  { key: "readingMinutes", label: "Reading minutes", icon: BookOpen },
+  { key: "meditationMinutes", label: "Meditation minutes", icon: Moon },
+  { key: "prayerCompletion", label: "Prayer completion", icon: ScrollText },
+  { key: "hydrationAverage", label: "Hydration average", icon: Droplets },
   { key: "distractionTime", label: "Distraction time", icon: TimerOff },
-  { key: "bestSignal", label: "Best signal of the week", icon: Radar },
 ] as const;
 
 export function WeeklyMissionSnapshot({ snapshot }: { snapshot: WeeklyMissionSnapshotType }) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, SendHorizonal, Sparkles, WandSparkles, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { GlassCard, SectionHeader } from "@/components/astra";
@@ -56,6 +57,7 @@ const timeCategories = [
 ] as const;
 
 export function DashboardQuickCapture() {
+  const router = useRouter();
   const [entry, setEntry] = useState("");
   const [signals, setSignals] = useState<SignalEntry[]>([]);
   const [pendingSignal, setPendingSignal] = useState<PendingSignal | null>(null);
@@ -194,6 +196,7 @@ export function DashboardQuickCapture() {
         ),
       );
       setPendingSignal(null);
+      router.refresh();
     } catch (confirmError) {
       setError(confirmError instanceof Error ? confirmError.message : "Could not confirm signal.");
     } finally {

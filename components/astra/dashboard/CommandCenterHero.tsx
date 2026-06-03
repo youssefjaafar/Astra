@@ -7,12 +7,13 @@ import { GlassCard, ProgressRing } from "@/components/astra";
 import { Badge } from "@/components/ui/badge";
 
 type CommandCenterHeroProps = {
+  displayName?: string;
   dayCompletion: number;
   focusState: string;
   statusLine: string;
 };
 
-export function CommandCenterHero({ dayCompletion, focusState, statusLine }: CommandCenterHeroProps) {
+export function CommandCenterHero({ displayName = "Commander", dayCompletion, focusState, statusLine }: CommandCenterHeroProps) {
   const currentDate = useMemo(
     () =>
       new Intl.DateTimeFormat("en-US", {
@@ -33,7 +34,7 @@ export function CommandCenterHero({ dayCompletion, focusState, statusLine }: Com
             Command Center
           </Badge>
           <h1 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
-            Good morning, Commander
+            Good morning, {displayName}
           </h1>
           <p className="mt-3 text-sm text-slate-400">{currentDate}</p>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">{statusLine}</p>

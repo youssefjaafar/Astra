@@ -123,10 +123,12 @@ export const dashboardCopilotInsight: DashboardCopilotInsight = {
 };
 
 export const weeklyMissionSnapshot: WeeklyMissionSnapshot = {
-  habitConsistency: "74%",
+  taskCompletion: "12/18",
+  habitLogs: "41 logs",
   trainingSessions: "2 / 3",
-  readingTime: "3h 20m",
-  averageSleep: "7h 04m",
+  readingMinutes: "3h 20m",
+  meditationMinutes: "50m",
+  prayerCompletion: "27/35",
+  hydrationAverage: "2.3L",
   distractionTime: "8h 45m",
-  bestSignal: "Meditation completed 5 days in a row",
 };
