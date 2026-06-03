@@ -10,11 +10,12 @@ type TrainingSummaryCardsProps = {
 
 export function TrainingSummaryCards({ workouts, weeklyTarget }: TrainingSummaryCardsProps) {
   const summary = getTrainingSummary(workouts, weeklyTarget);
+  const weeklyTargetValue = summary.weeklyTarget > 0 ? String(summary.weeklyTarget) : "Not set";
 
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
       <StatCard icon={CalendarCheck} subtitle="Current weekly signal" title="This week" value={String(summary.workoutsThisWeek)} />
-      <StatCard icon={Target} subtitle="Preference target" title="Weekly target" value={String(summary.weeklyTarget)} />
+      <StatCard icon={Target} subtitle="Preference target" title="Weekly target" value={weeklyTargetValue} />
       <StatCard icon={Clock3} subtitle="Total training duration" title="Training minutes" value={formatMinutes(summary.totalMinutes)} />
       <StatCard icon={Dumbbell} subtitle="Latest completed session" title="Last workout" value={summary.lastWorkout?.title ?? "No signal yet"} />
       <StatCard icon={Activity} subtitle="Most common this week" title="Common type" value={summary.mostCommonType} />

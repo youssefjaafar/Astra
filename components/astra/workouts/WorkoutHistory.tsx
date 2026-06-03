@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 
-import { EmptyState, GlassCard, SectionHeader } from "@/components/astra";
+import { EmptyState, SectionHeader } from "@/components/astra";
 import { WorkoutCard } from "@/components/astra/workouts/WorkoutCard";
 import { getWorkoutGroups, type AstraWorkout } from "@/components/astra/workouts/workout-utils";
 
@@ -30,7 +30,7 @@ export function WorkoutHistory({ workouts, onEdit, onDelete, onNewWorkout }: Wor
   return (
     <div className="space-y-5">
       {groups.map((group) => (
-        <GlassCard className="p-5" key={group.title}>
+        <section key={group.title}>
           <SectionHeader title={group.title} subtitle={`${group.workouts.length} signal${group.workouts.length === 1 ? "" : "s"}`} />
           <div className="mt-4 grid gap-3 xl:grid-cols-2">
             {group.workouts.length > 0 ? (
@@ -50,7 +50,7 @@ export function WorkoutHistory({ workouts, onEdit, onDelete, onNewWorkout }: Wor
               </p>
             )}
           </div>
-        </GlassCard>
+        </section>
       ))}
     </div>
   );

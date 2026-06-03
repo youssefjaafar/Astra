@@ -11,6 +11,8 @@ type TrainingConsistencyPanelProps = {
 
 export function TrainingConsistencyPanel({ workouts, weeklyTarget }: TrainingConsistencyPanelProps) {
   const summary = getTrainingSummary(workouts, weeklyTarget);
+  const progressLabel =
+    summary.weeklyTarget > 0 ? `${summary.workoutsThisWeek}/${summary.weeklyTarget}` : `${summary.workoutsThisWeek} logged`;
 
   return (
     <GlassCard className="p-5">
@@ -18,7 +20,7 @@ export function TrainingConsistencyPanel({ workouts, weeklyTarget }: TrainingCon
       <div className="mt-5 flex items-start justify-between gap-4">
         <div>
           <p className="text-3xl font-semibold text-white">
-            {summary.workoutsThisWeek}/{summary.weeklyTarget}
+            {progressLabel}
           </p>
           <p className="mt-2 text-sm text-slate-500">Streak: calibration pending</p>
         </div>

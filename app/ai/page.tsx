@@ -1,10 +1,40 @@
-import { PlaceholderPage } from "@/components/astra";
+import { redirect } from "next/navigation";
 
-export default function AiPage() {
+import { AICopilotModule } from "@/components/astra/ai";
+import { fetchCopilotContext } from "@/lib/ai/copilot-context";
+import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
+
+export default async function AiPage() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const [insightsResult, contextResult] = await Promise.all([
+    supabase.from("ai_insights").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+    fetchCopilotContext(supabase, user.id),
+  ]);
+
+  const initialError = [formatSetupError(insightsResult.error, "public.ai_insights"), contextResult.error]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <PlaceholderPage
-      title="AI Copilot"
-      description="Quick Capture parsing, daily planning, debrief summaries, weekly reports, and gentle course correction."
+    <AICopilotModule
+      initialContextSummary={contextResult.summary}
+      initialError={initialError || null}
+      initialInsights={insightsResult.data ?? []}
+      userId={user.id}
     />
   );
+}
+
+function formatSetupError(error: { message: string; code?: string } | null, tableName: string) {
+  if (!error) return null;
+  return isMissingTableError(error) ? getDatabaseSetupMessage(tableName) : error.message;
 }
