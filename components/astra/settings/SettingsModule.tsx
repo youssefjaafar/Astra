@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -123,7 +122,7 @@ export function SettingsModule({
   }
 
   return (
-    <motion.div animate={{ opacity: 1, y: 0 }} className="space-y-6" initial={{ opacity: 0, y: 12 }} transition={{ duration: 0.35 }}>
+    <div className="space-y-6">
       {(error || success) ? (
         <GlassCard
           className={
@@ -159,6 +158,6 @@ export function SettingsModule({
       {activeTab === "data" ? (
         <DangerZone onError={setError} onSuccess={setSuccess} />
       ) : null}
-    </motion.div>
+    </div>
   );
 }

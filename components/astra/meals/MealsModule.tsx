@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { AlertCircle, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -133,7 +132,7 @@ export function MealsModule({ initialMeals, initialWaterLogs, initialWaterTarget
   }
 
   return (
-    <motion.div animate={{ opacity: 1, y: 0 }} className="space-y-6" initial={{ opacity: 0, y: 12 }} transition={{ duration: 0.35 }}>
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeader
           title="Nutrition Module"
@@ -181,7 +180,7 @@ export function MealsModule({ initialMeals, initialWaterLogs, initialWaterTarget
         onSubmit={saveMeal}
         open={dialogOpen}
       />
-    </motion.div>
+    </div>
   );
 }
 

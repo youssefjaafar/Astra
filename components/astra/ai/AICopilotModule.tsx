@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { AlertCircle, BrainCircuit } from "lucide-react";
 import { useState } from "react";
 
@@ -67,7 +66,7 @@ export function AICopilotModule({ initialInsights, initialContextSummary, initia
   }
 
   return (
-    <motion.div animate={{ opacity: 1, y: 0 }} className="space-y-6" initial={{ opacity: 0, y: 12 }} transition={{ duration: 0.35 }}>
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <SectionHeader title="AI Copilot" subtitle="Analyze your life signals and receive calm course corrections." />
         <Badge className="w-fit gap-2 px-3 py-2" tone="cyan">
@@ -100,7 +99,7 @@ export function AICopilotModule({ initialInsights, initialContextSummary, initia
       />
 
       <AIInsightHistory insights={insights} />
-    </motion.div>
+    </div>
   );
 }
 

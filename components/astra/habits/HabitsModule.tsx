@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { AlertCircle, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -122,7 +121,7 @@ export function HabitsModule({ initialHabits, initialHabitLogs, initialPrayerLog
   }
 
   return (
-    <motion.div animate={{ opacity: 1, y: 0 }} className="space-y-8" initial={{ opacity: 0, y: 12 }} transition={{ duration: 0.35 }}>
+    <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <SectionHeader
           title="Systems & Habits"
@@ -163,6 +162,6 @@ export function HabitsModule({ initialHabits, initialHabitLogs, initialPrayerLog
 
       <HabitFormDialog habit={editingHabit} onClose={() => setFormOpen(false)} onSubmit={saveHabit} open={formOpen} />
       <HabitLogDialog habit={loggingHabit} onClose={() => setLoggingHabit(null)} onSubmit={logHabit} open={Boolean(loggingHabit)} />
-    </motion.div>
+    </div>
   );
 }

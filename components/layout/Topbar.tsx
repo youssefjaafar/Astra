@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CalendarDays, LogOut, Search, Signal, Sparkles, UserCircle } from "lucide-react";
+import { LogOut, Search, Signal, Sparkles, UserCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { LiveDateTime } from "@/components/layout/LiveDateTime";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -12,11 +13,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 export function Topbar() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState("Commander");
-  const currentDate = new Intl.DateTimeFormat("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  }).format(new Date());
+  const [timezone, setTimezone] = useState("America/Detroit");
 
   useEffect(() => {
     let cancelled = false;
@@ -34,15 +31,17 @@ export function Topbar() {
 
         const { data } = await supabase
           .from("profiles")
-          .select("display_name")
+          .select("display_name, timezone")
           .eq("user_id", user.id)
           .maybeSingle();
 
         if (!cancelled) {
           setDisplayName(data?.display_name || user.email?.split("@")[0] || "Commander");
+          setTimezone(data?.timezone || "America/Detroit");
         }
       } catch {
         setDisplayName("Commander");
+        setTimezone("America/Detroit");
       }
     }
 
@@ -68,10 +67,7 @@ export function Topbar() {
             <Sparkles className="h-5 w-5 text-cyan-200" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              <CalendarDays className="h-4 w-4" />
-              <span className="truncate">{currentDate}</span>
-            </div>
+            <LiveDateTime timezone={timezone} />
             <p className="mt-0.5 hidden text-xs text-slate-600 sm:block">Calm cockpit for today&apos;s mission</p>
           </div>
         </div>
@@ -90,8 +86,10 @@ export function Topbar() {
             <UserCircle className="mr-1 h-3 w-3" />
             {displayName}
           </Badge>
-          <Button asChild size="sm">
-            <Link href="/ai">Quick Capture</Link>
+          <Button asChild className="hidden sm:inline-flex" size="sm">
+            <Link href="/ai" prefetch>
+              Quick Capture
+            </Link>
           </Button>
           <Button aria-label="Log out" onClick={handleLogout} size="icon" type="button" variant="secondary">
             <LogOut className="h-4 w-4" />

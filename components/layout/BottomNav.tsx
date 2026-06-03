@@ -37,6 +37,7 @@ export function BottomNav() {
               )}
               href={item.href}
               key={item.href}
+              prefetch
             >
               <Icon className="h-4 w-4" />
               <span>{item.label}</span>

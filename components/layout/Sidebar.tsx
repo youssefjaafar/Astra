@@ -35,7 +35,7 @@ export function Sidebar() {
   return (
     <aside className="hidden border-r border-white/10 bg-slate-950/40 backdrop-blur-xl lg:fixed lg:inset-y-0 lg:left-0 lg:block lg:w-72">
       <div className="flex h-full flex-col px-4 py-5">
-        <Link className="flex items-center gap-3 px-2" href="/dashboard">
+        <Link className="flex items-center gap-3 px-2" href="/dashboard" prefetch>
           <div className="grid h-11 w-11 place-items-center rounded-xl border border-cyan-200/30 bg-cyan-200/10 shadow-glow">
             <Orbit className="h-5 w-5 text-cyan-200" />
           </div>
@@ -60,6 +60,7 @@ export function Sidebar() {
                 )}
                 href={item.href}
                 key={item.href}
+                prefetch
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="min-w-0">
