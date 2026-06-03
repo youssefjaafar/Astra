@@ -429,6 +429,11 @@ export type Database = {
           meditation_target_minutes: number | null;
           prayer_tracking_enabled: boolean | null;
           screen_time_limit_minutes: number | null;
+          ai_tone: "calm" | "direct" | "strict" | "encouraging" | null;
+          ai_recommendation_style: "minimal" | "balanced" | "detailed" | null;
+          daily_planning_enabled: boolean | null;
+          weekly_report_enabled: boolean | null;
+          course_correction_enabled: boolean | null;
           created_at: Timestamp | null;
           updated_at: Timestamp | null;
         };
@@ -444,6 +449,11 @@ export type Database = {
           meditation_target_minutes?: number | null;
           prayer_tracking_enabled?: boolean | null;
           screen_time_limit_minutes?: number | null;
+          ai_tone?: "calm" | "direct" | "strict" | "encouraging" | null;
+          ai_recommendation_style?: "minimal" | "balanced" | "detailed" | null;
+          daily_planning_enabled?: boolean | null;
+          weekly_report_enabled?: boolean | null;
+          course_correction_enabled?: boolean | null;
           created_at?: Timestamp | null;
           updated_at?: Timestamp | null;
         };
