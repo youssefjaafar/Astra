@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { buildWeeklyReportMessages, formatWeeklyReport } from "@/lib/ai/prompts/reviews";
-import { generateJsonCompletion } from "@/lib/ai/provider";
+import { AiProviderError, generateJsonCompletion } from "@/lib/ai/provider";
 import { fetchReviewSignals } from "@/lib/reviews/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { aiWeeklyReportSchema, weeklyReportAiRequestSchema } from "@/lib/validations/reviews";
@@ -114,6 +114,14 @@ export async function POST(request: Request) {
         },
         { status: 400 },
       );
+    }
+
+    if (error instanceof AiProviderError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: "Invalid JSON request body." }, { status: 400 });
     }
 
     return NextResponse.json(

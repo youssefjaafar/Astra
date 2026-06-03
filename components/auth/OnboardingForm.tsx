@@ -99,43 +99,44 @@ export function OnboardingForm() {
   return (
     <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="Display name" error={form.formState.errors.displayName?.message}>
-          <Input autoComplete="name" {...form.register("displayName")} />
+        <Field id="onboarding-display-name" label="Display name" error={form.formState.errors.displayName?.message}>
+          <Input autoComplete="name" id="onboarding-display-name" {...form.register("displayName")} />
         </Field>
-        <Field label="Timezone" error={form.formState.errors.timezone?.message}>
-          <Input {...form.register("timezone")} />
+        <Field id="onboarding-timezone" label="Timezone" error={form.formState.errors.timezone?.message}>
+          <Input id="onboarding-timezone" {...form.register("timezone")} />
         </Field>
       </div>
 
-      <Field label="Main goal" error={form.formState.errors.mainGoal?.message}>
+      <Field id="onboarding-main-goal" label="Main goal" error={form.formState.errors.mainGoal?.message}>
         <Textarea
           className="min-h-24"
+          id="onboarding-main-goal"
           placeholder="Read more, train consistently, reduce scrolling, and protect spiritual anchors."
           {...form.register("mainGoal")}
         />
       </Field>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="Wake-up target" error={form.formState.errors.wakeTime?.message}>
-          <Input type="time" {...form.register("wakeTime")} />
+        <Field id="onboarding-wake-time" label="Wake-up target" error={form.formState.errors.wakeTime?.message}>
+          <Input id="onboarding-wake-time" type="time" {...form.register("wakeTime")} />
         </Field>
-        <Field label="Sleep target" error={form.formState.errors.sleepTime?.message}>
-          <Input type="time" {...form.register("sleepTime")} />
+        <Field id="onboarding-sleep-time" label="Sleep target" error={form.formState.errors.sleepTime?.message}>
+          <Input id="onboarding-sleep-time" type="time" {...form.register("sleepTime")} />
         </Field>
-        <Field label="Water target in ml" error={form.formState.errors.waterTargetMl?.message}>
-          <Input type="number" min={50} step={50} {...form.register("waterTargetMl")} />
+        <Field id="onboarding-water-target" label="Water target in ml" error={form.formState.errors.waterTargetMl?.message}>
+          <Input id="onboarding-water-target" type="number" min={50} step={50} {...form.register("waterTargetMl")} />
         </Field>
-        <Field label="Reading minutes per day" error={form.formState.errors.readingTargetMinutes?.message}>
-          <Input type="number" min={0} {...form.register("readingTargetMinutes")} />
+        <Field id="onboarding-reading-target" label="Reading minutes per day" error={form.formState.errors.readingTargetMinutes?.message}>
+          <Input id="onboarding-reading-target" type="number" min={0} {...form.register("readingTargetMinutes")} />
         </Field>
-        <Field label="Workouts per week" error={form.formState.errors.workoutTargetWeekly?.message}>
-          <Input type="number" min={0} {...form.register("workoutTargetWeekly")} />
+        <Field id="onboarding-workout-target" label="Workouts per week" error={form.formState.errors.workoutTargetWeekly?.message}>
+          <Input id="onboarding-workout-target" type="number" min={0} {...form.register("workoutTargetWeekly")} />
         </Field>
-        <Field label="Meditation minutes per day" error={form.formState.errors.meditationTargetMinutes?.message}>
-          <Input type="number" min={0} {...form.register("meditationTargetMinutes")} />
+        <Field id="onboarding-meditation-target" label="Meditation minutes per day" error={form.formState.errors.meditationTargetMinutes?.message}>
+          <Input id="onboarding-meditation-target" type="number" min={0} {...form.register("meditationTargetMinutes")} />
         </Field>
-        <Field label="Screen time daily limit" error={form.formState.errors.screenTimeLimitMinutes?.message}>
-          <Input type="number" min={0} {...form.register("screenTimeLimitMinutes")} />
+        <Field id="onboarding-screen-time-limit" label="Screen time daily limit" error={form.formState.errors.screenTimeLimitMinutes?.message}>
+          <Input id="onboarding-screen-time-limit" type="number" min={0} {...form.register("screenTimeLimitMinutes")} />
         </Field>
         <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
           <label className="flex items-center justify-between gap-4 text-sm font-medium text-slate-200">
@@ -161,17 +162,19 @@ export function OnboardingForm() {
 }
 
 function Field({
+  id,
   label,
   error,
   children,
 }: {
+  id: string;
   label: string;
   error?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-slate-200">{label}</label>
+      <label className="text-sm font-medium text-slate-200" htmlFor={id}>{label}</label>
       {children}
       {error ? <p className="text-sm text-amber-200">{error}</p> : null}
     </div>

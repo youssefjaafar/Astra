@@ -21,11 +21,21 @@ type ChatCompletionResponse = {
   };
 };
 
+export class AiProviderError extends Error {
+  status: number;
+
+  constructor(message: string, status = 500) {
+    super(message);
+    this.name = "AiProviderError";
+    this.status = status;
+  }
+}
+
 export async function generateJsonCompletion({ messages, temperature = 0.1 }: GenerateJsonOptions) {
   const provider = process.env.AI_PROVIDER || "openai";
 
   if (provider !== "openai" && provider !== "openai-compatible") {
-    throw new Error(`Unsupported AI_PROVIDER: ${provider}`);
+    throw new AiProviderError("AI provider is not configured correctly.", 503);
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -33,7 +43,7 @@ export async function generateJsonCompletion({ messages, temperature = 0.1 }: Ge
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
   if (!apiKey) {
-    throw new Error("Missing OPENAI_API_KEY.");
+    throw new AiProviderError("AI provider is not configured.", 503);
   }
 
   const response = await fetch(`${baseUrl}/chat/completions`, {
@@ -50,17 +60,27 @@ export async function generateJsonCompletion({ messages, temperature = 0.1 }: Ge
     }),
   });
 
-  const data = (await response.json()) as ChatCompletionResponse;
+  let data: ChatCompletionResponse;
+
+  try {
+    data = (await response.json()) as ChatCompletionResponse;
+  } catch {
+    throw new AiProviderError("AI provider returned an unreadable response.", 502);
+  }
 
   if (!response.ok) {
-    throw new Error(data.error?.message ?? "AI provider request failed.");
+    throw new AiProviderError(data.error?.message ?? "AI provider request failed.", response.status || 502);
   }
 
   const content = data.choices?.[0]?.message?.content;
 
   if (!content) {
-    throw new Error("AI provider returned an empty response.");
+    throw new AiProviderError("AI provider returned an empty response.", 502);
   }
 
-  return JSON.parse(content) as unknown;
+  try {
+    return JSON.parse(content) as unknown;
+  } catch {
+    throw new AiProviderError("AI provider returned malformed JSON.", 502);
+  }
 }

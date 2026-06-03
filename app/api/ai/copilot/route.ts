@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { fetchCopilotContext } from "@/lib/ai/copilot-context";
 import { buildCopilotMessages } from "@/lib/ai/prompts/copilot";
-import { generateJsonCompletion } from "@/lib/ai/provider";
+import { AiProviderError, generateJsonCompletion } from "@/lib/ai/provider";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { copilotAnswerSchema, copilotRequestSchema } from "@/lib/validations/copilot";
 
@@ -47,6 +47,14 @@ export async function POST(request: Request) {
         },
         { status: 400 },
       );
+    }
+
+    if (error instanceof AiProviderError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: "Invalid JSON request body." }, { status: 400 });
     }
 
     return NextResponse.json(
