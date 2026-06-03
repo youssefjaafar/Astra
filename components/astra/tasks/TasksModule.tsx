@@ -93,6 +93,7 @@ export function TasksModule({ initialTasks, initialError, userId }: TasksModuleP
           completed_at: completedAt,
         })
         .eq("id", task.id)
+        .eq("user_id", userId)
         .select("*")
         .single();
 
@@ -156,6 +157,7 @@ export function TasksModule({ initialTasks, initialError, userId }: TasksModuleP
         completed_at: nextCompletedAt,
       })
       .eq("id", task.id)
+      .eq("user_id", userId)
       .select("*")
       .single();
 
@@ -174,7 +176,7 @@ export function TasksModule({ initialTasks, initialError, userId }: TasksModuleP
     setTasks((current) => current.filter((item) => item.id !== task.id));
 
     const supabase = createSupabaseBrowserClient();
-    const { error: deleteError } = await supabase.from("tasks").delete().eq("id", task.id);
+    const { error: deleteError } = await supabase.from("tasks").delete().eq("id", task.id).eq("user_id", userId);
 
     if (deleteError) {
       setTasks(previousTasks);

@@ -51,7 +51,13 @@ export function MealsModule({ initialMeals, initialWaterLogs, initialWaterTarget
     const payload = normalizeMeal(values);
 
     if (meal) {
-      const { data, error: updateError } = await supabase.from("meals").update(payload).eq("id", meal.id).select("*").single();
+      const { data, error: updateError } = await supabase
+        .from("meals")
+        .update(payload)
+        .eq("id", meal.id)
+        .eq("user_id", userId)
+        .select("*")
+        .single();
       setLoadingMessage(null);
 
       if (updateError) {
@@ -90,7 +96,7 @@ export function MealsModule({ initialMeals, initialWaterLogs, initialWaterTarget
     const previousMeals = meals;
     setMeals((current) => current.filter((item) => item.id !== meal.id));
 
-    const { error: deleteError } = await supabase.from("meals").delete().eq("id", meal.id);
+    const { error: deleteError } = await supabase.from("meals").delete().eq("id", meal.id).eq("user_id", userId);
 
     if (deleteError) {
       setMeals(previousMeals);
@@ -123,7 +129,7 @@ export function MealsModule({ initialMeals, initialWaterLogs, initialWaterTarget
     const previousLogs = waterLogs;
     setWaterLogs((current) => current.filter((item) => item.id !== log.id));
 
-    const { error: deleteError } = await supabase.from("water_logs").delete().eq("id", log.id);
+    const { error: deleteError } = await supabase.from("water_logs").delete().eq("id", log.id).eq("user_id", userId);
 
     if (deleteError) {
       setWaterLogs(previousLogs);

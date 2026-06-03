@@ -16,14 +16,24 @@ export const timeCategories = [
   "other",
 ] as const;
 
+const optionalPositiveInteger = z.preprocess(
+  (value) => (value === "" || value === null ? undefined : value),
+  z.coerce.number().int().min(1, "Duration must be at least 1 minute.").optional(),
+);
+
+const optionalQualityScore = z.preprocess(
+  (value) => (value === "" || value === null ? undefined : value),
+  z.coerce.number().int().min(1, "Quality starts at 1.").max(10, "Quality tops out at 10.").optional(),
+);
+
 export const timeBlockFormSchema = z
   .object({
     title: z.string().min(1, "Add a title for this time signal.").max(160, "Keep the title under 160 characters."),
     category: z.enum(timeCategories),
     startTime: z.string().optional(),
     endTime: z.string().optional(),
-    durationMinutes: z.coerce.number().int().min(1, "Duration must be at least 1 minute.").optional(),
-    qualityScore: z.coerce.number().int().min(1, "Quality starts at 1.").max(10, "Quality tops out at 10.").optional(),
+    durationMinutes: optionalPositiveInteger,
+    qualityScore: optionalQualityScore,
     notes: z.string().max(1000, "Keep notes under 1000 characters.").optional(),
   })
   .refine((value) => Boolean(value.durationMinutes || value.startTime), {

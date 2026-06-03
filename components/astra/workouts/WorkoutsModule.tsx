@@ -49,7 +49,13 @@ export function WorkoutsModule({ initialWorkouts, initialWeeklyTarget, initialEr
     const payload = normalizeWorkout(values);
 
     if (workout) {
-      const { data, error: updateError } = await supabase.from("workouts").update(payload).eq("id", workout.id).select("*").single();
+      const { data, error: updateError } = await supabase
+        .from("workouts")
+        .update(payload)
+        .eq("id", workout.id)
+        .eq("user_id", userId)
+        .select("*")
+        .single();
       setLoadingMessage(null);
 
       if (updateError) {
@@ -116,7 +122,7 @@ export function WorkoutsModule({ initialWorkouts, initialWeeklyTarget, initialEr
     const previousWorkouts = workouts;
     setWorkouts((current) => current.filter((item) => item.id !== workout.id));
 
-    const { error: deleteError } = await supabase.from("workouts").delete().eq("id", workout.id);
+    const { error: deleteError } = await supabase.from("workouts").delete().eq("id", workout.id).eq("user_id", userId);
 
     if (deleteError) {
       setWorkouts(previousWorkouts);

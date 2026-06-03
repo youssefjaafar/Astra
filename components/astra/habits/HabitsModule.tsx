@@ -67,7 +67,13 @@ export function HabitsModule({ initialHabits, initialHabitLogs, initialPrayerLog
     };
 
     if (habit) {
-      const { data, error: updateError } = await supabase.from("habits").update(payload).eq("id", habit.id).select("*").single();
+      const { data, error: updateError } = await supabase
+        .from("habits")
+        .update(payload)
+        .eq("id", habit.id)
+        .eq("user_id", userId)
+        .select("*")
+        .single();
       if (updateError) {
         setError(updateError.message);
         return;

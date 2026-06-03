@@ -11,8 +11,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { timeCategories, type TimeCategory } from "@/lib/validations/time";
 
-const storageKey = "astra.activeTimeTimer";
-
 type ActiveTimerState = {
   title: string;
   category: TimeCategory;
@@ -27,6 +25,7 @@ type ActiveTimerProps = {
 
 export function ActiveTimer({ userId, onCreated, onError }: ActiveTimerProps) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const storageKey = useMemo(() => `astra.activeTimeTimer.${userId}`, [userId]);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<TimeCategory>("deep_work");
   const [activeTimer, setActiveTimer] = useState<ActiveTimerState | null>(null);
@@ -45,7 +44,7 @@ export function ActiveTimer({ userId, onCreated, onError }: ActiveTimerProps) {
     } catch {
       window.localStorage.removeItem(storageKey);
     }
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
     if (!activeTimer) {

@@ -45,6 +45,7 @@ export function SpiritualAnchor({ userId, initialPrayerLogs, onError }: Spiritua
         .from("prayer_logs")
         .update({ completed: nextCompleted, logged_at: new Date().toISOString() })
         .eq("id", existing.id)
+        .eq("user_id", userId)
         .select("*")
         .single();
 

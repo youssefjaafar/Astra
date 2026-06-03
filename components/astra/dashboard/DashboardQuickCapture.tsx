@@ -116,7 +116,7 @@ export function DashboardQuickCapture() {
       const responseBody = (await response.json()) as unknown;
 
       if (!response.ok) {
-        await supabase.from("quick_captures").update({ status: "failed" }).eq("id", capture.id);
+        await supabase.from("quick_captures").update({ status: "failed" }).eq("id", capture.id).eq("user_id", user.id);
         throw new Error(getApiErrorMessage(responseBody));
       }
 
@@ -129,7 +129,8 @@ export function DashboardQuickCapture() {
           parsed_payload: parsedBody.payload as Json,
           status: "needs_confirmation",
         })
-        .eq("id", capture.id);
+        .eq("id", capture.id)
+        .eq("user_id", user.id);
 
       setPendingSignal({
         quickCaptureId: capture.id,
@@ -184,7 +185,8 @@ export function DashboardQuickCapture() {
           parsed_payload: pendingSignal.result.payload as Json,
           status: "confirmed",
         })
-        .eq("id", pendingSignal.quickCaptureId);
+        .eq("id", pendingSignal.quickCaptureId)
+        .eq("user_id", user.id);
 
       if (updateError) {
         throw new Error(updateError.message);
@@ -211,10 +213,21 @@ export function DashboardQuickCapture() {
 
     setError(null);
     const supabase = createSupabaseBrowserClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setError(userError?.message ?? "Sign in before cancelling a signal.");
+      return;
+    }
+
     const { error: updateError } = await supabase
       .from("quick_captures")
       .update({ status: "cancelled" })
-      .eq("id", pendingSignal.quickCaptureId);
+      .eq("id", pendingSignal.quickCaptureId)
+      .eq("user_id", user.id);
 
     if (updateError) {
       setError(updateError.message);

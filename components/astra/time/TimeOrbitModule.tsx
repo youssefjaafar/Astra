@@ -51,7 +51,13 @@ export function TimeOrbitModule({ initialBlocks, initialError, userId }: TimeOrb
     }
 
     if (block) {
-      const { data, error: updateError } = await supabase.from("time_blocks").update(normalized).eq("id", block.id).select("*").single();
+      const { data, error: updateError } = await supabase
+        .from("time_blocks")
+        .update(normalized)
+        .eq("id", block.id)
+        .eq("user_id", userId)
+        .select("*")
+        .single();
       setLoadingMessage(null);
 
       if (updateError) {
@@ -90,7 +96,7 @@ export function TimeOrbitModule({ initialBlocks, initialError, userId }: TimeOrb
     const previousBlocks = blocks;
     setBlocks((current) => current.filter((item) => item.id !== block.id));
 
-    const { error: deleteError } = await supabase.from("time_blocks").delete().eq("id", block.id);
+    const { error: deleteError } = await supabase.from("time_blocks").delete().eq("id", block.id).eq("user_id", userId);
 
     if (deleteError) {
       setBlocks(previousBlocks);
