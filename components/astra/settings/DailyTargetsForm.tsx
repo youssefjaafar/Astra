@@ -83,8 +83,8 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 
 function getDefaultValues(preferences: UserPreferences | null): DailyTargetsInput {
   return {
-    wakeTime: preferences?.wake_time ?? "06:30",
-    sleepTime: preferences?.sleep_time ?? "22:30",
+    wakeTime: toTimeInputValue(preferences?.wake_time) ?? "06:30",
+    sleepTime: toTimeInputValue(preferences?.sleep_time) ?? "22:30",
     waterTargetMl: preferences?.water_target_ml ?? 2500,
     readingTargetMinutes: preferences?.reading_target_minutes ?? 20,
     workoutTargetWeekly: preferences?.workout_target_weekly ?? 3,
@@ -92,4 +92,10 @@ function getDefaultValues(preferences: UserPreferences | null): DailyTargetsInpu
     screenTimeLimitMinutes: preferences?.screen_time_limit_minutes ?? 240,
     prayerTrackingEnabled: preferences?.prayer_tracking_enabled ?? true,
   };
+}
+
+function toTimeInputValue(value?: string | null) {
+  if (!value) return null;
+  const match = value.match(/^([01]\d|2[0-3]):[0-5]\d/);
+  return match?.[0] ?? null;
 }

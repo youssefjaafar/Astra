@@ -1,19 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, Tooltip } from "recharts";
 
 import { EmptyState, GlassCard, SectionHeader } from "@/components/astra";
+import { SafeResponsiveContainer } from "@/components/astra/charts/SafeResponsiveContainer";
 import { Badge } from "@/components/ui/badge";
 import { formatNumber, getMacroDistribution, type AstraMeal } from "@/components/astra/meals/nutrition-utils";
 
 export function MacroDistributionChart({ meals }: { meals: AstraMeal[] }) {
-  const [mounted, setMounted] = useState(false);
   const data = getMacroDistribution(meals);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <GlassCard className="p-5">
@@ -24,9 +19,8 @@ export function MacroDistributionChart({ meals }: { meals: AstraMeal[] }) {
         </div>
       ) : (
         <div className="mt-5 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="h-72 min-h-72">
-            {mounted ? (
-              <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
+          <div className="h-72 min-h-72 min-w-[1px]">
+            <SafeResponsiveContainer>
                 <PieChart>
                   <Pie
                     cx="50%"
@@ -53,8 +47,7 @@ export function MacroDistributionChart({ meals }: { meals: AstraMeal[] }) {
                     formatter={(value) => [`${formatNumber(Number(value), "g")}`, "Macro"]}
                   />
                 </PieChart>
-              </ResponsiveContainer>
-            ) : null}
+            </SafeResponsiveContainer>
           </div>
           <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
             {data.map((item) => (

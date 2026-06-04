@@ -51,7 +51,7 @@ export function HabitCard({ habit, onComplete, onLog, onEdit }: HabitCardProps) 
   const Icon = icons[habit.category as HabitCategory] ?? Target;
 
   return (
-    <GlassCard className="p-4">
+    <GlassCard className="p-4" data-testid="habit-card">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="grid h-10 w-10 place-items-center rounded-md border border-white/10 bg-white/[0.04]">

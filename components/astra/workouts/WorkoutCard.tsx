@@ -23,7 +23,7 @@ export function WorkoutCard({ workout, onEdit, onDelete }: WorkoutCardProps) {
   const type = workout.workout_type ?? "custom";
 
   return (
-    <GlassCard className="p-4">
+    <GlassCard className="p-4" data-testid="workout-card">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">

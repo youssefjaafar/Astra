@@ -9,13 +9,13 @@ import {
   LineChart,
   Pie,
   PieChart,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 
 import { GlassCard, SectionHeader } from "@/components/astra";
+import { SafeResponsiveContainer } from "@/components/astra/charts/SafeResponsiveContainer";
 import {
   getScoreChartData,
   getWeeklyHabitCompletionData,
@@ -44,7 +44,7 @@ export function ReviewCharts({ reviews, signals, weekStart }: ReviewChartsProps)
       <SectionHeader title="Life Signals" subtitle="Calm charts for the selected mission week." />
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <ChartCard title="Mood / Energy / Focus" subtitle="Daily self-ratings over the week.">
-          <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
+          <SafeResponsiveContainer>
             <LineChart data={scores}>
               <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
               <XAxis axisLine={false} dataKey="day" tick={tickStyle} tickLine={false} />
@@ -54,12 +54,12 @@ export function ReviewCharts({ reviews, signals, weekStart }: ReviewChartsProps)
               <Line connectNulls dataKey="energy" dot={false} stroke="#a78bfa" strokeWidth={2} />
               <Line connectNulls dataKey="focus" dot={false} stroke="#93c5fd" strokeWidth={2} />
             </LineChart>
-          </ResponsiveContainer>
+          </SafeResponsiveContainer>
         </ChartCard>
 
         <ChartCard title="Time Distribution" subtitle="Tracked minutes by category.">
           {timeDistribution.length > 0 ? (
-            <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
+            <SafeResponsiveContainer>
               <PieChart>
                 <Pie data={timeDistribution} dataKey="minutes" innerRadius={54} nameKey="category" outerRadius={88} paddingAngle={3}>
                   {timeDistribution.map((entry, index) => (
@@ -68,14 +68,14 @@ export function ReviewCharts({ reviews, signals, weekStart }: ReviewChartsProps)
                 </Pie>
                 <Tooltip contentStyle={tooltipStyle} formatter={(value, name) => [`${value} min`, formatCategory(String(name))]} />
               </PieChart>
-            </ResponsiveContainer>
+            </SafeResponsiveContainer>
           ) : (
             <EmptyChartText text="No tracked time in this week." />
           )}
         </ChartCard>
 
         <ChartCard title="Habit Completion Rate" subtitle="Habit and prayer completion signals by day.">
-          <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
+          <SafeResponsiveContainer>
             <BarChart data={habitCompletion}>
               <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
               <XAxis axisLine={false} dataKey="day" tick={tickStyle} tickLine={false} />
@@ -83,11 +83,11 @@ export function ReviewCharts({ reviews, signals, weekStart }: ReviewChartsProps)
               <Tooltip contentStyle={tooltipStyle} formatter={(value) => [`${value}`, "Completions"]} />
               <Bar dataKey="completions" fill="#a78bfa" radius={[6, 6, 0, 0]} />
             </BarChart>
-          </ResponsiveContainer>
+          </SafeResponsiveContainer>
         </ChartCard>
 
         <ChartCard title="Training Minutes" subtitle="Workout duration by day.">
-          <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
+          <SafeResponsiveContainer>
             <BarChart data={training}>
               <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
               <XAxis axisLine={false} dataKey="day" tick={tickStyle} tickLine={false} />
@@ -95,7 +95,7 @@ export function ReviewCharts({ reviews, signals, weekStart }: ReviewChartsProps)
               <Tooltip contentStyle={tooltipStyle} formatter={(value) => [`${value} min`, "Training"]} />
               <Bar dataKey="minutes" fill="#67e8f9" radius={[6, 6, 0, 0]} />
             </BarChart>
-          </ResponsiveContainer>
+          </SafeResponsiveContainer>
         </ChartCard>
       </div>
     </section>
@@ -106,7 +106,7 @@ function ChartCard({ title, subtitle, children }: { title: string; subtitle: str
   return (
     <GlassCard className="p-5">
       <SectionHeader title={title} subtitle={subtitle} />
-      <div className="mt-5 h-72 min-h-72">{children}</div>
+      <div className="mt-5 h-72 min-h-72 min-w-[1px]">{children}</div>
     </GlassCard>
   );
 }

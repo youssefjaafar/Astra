@@ -1,27 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, Tooltip } from "recharts";
 
 import { GlassCard, SectionHeader } from "@/components/astra";
+import { SafeResponsiveContainer } from "@/components/astra/charts/SafeResponsiveContainer";
 import { Badge } from "@/components/ui/badge";
 import type { DashboardTimeCategory } from "@/lib/types";
 
 export function TimeOrbitSection({ data }: { data: DashboardTimeCategory[] }) {
-  const [mounted, setMounted] = useState(false);
   const hasData = data.length > 0;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <GlassCard className="p-5">
       <SectionHeader title="Time Orbit" subtitle="Today's time distribution across work, recovery, and drift." />
       <div className="mt-5 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="h-72 min-h-72">
-          {mounted && hasData ? (
-            <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
+        <div className="h-72 min-h-72 min-w-[1px]">
+          {hasData ? (
+            <SafeResponsiveContainer>
               <PieChart>
                 <Pie
                   cx="50%"
@@ -48,7 +43,7 @@ export function TimeOrbitSection({ data }: { data: DashboardTimeCategory[] }) {
                   formatter={(value) => [`${value}h`, "Time"]}
                 />
               </PieChart>
-            </ResponsiveContainer>
+            </SafeResponsiveContainer>
           ) : (
             <div className="grid h-full place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-center">
               <p className="max-w-xs px-4 text-sm leading-6 text-slate-500">

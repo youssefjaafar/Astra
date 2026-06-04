@@ -16,7 +16,7 @@ export function ReviewCard({ review, onSelect }: ReviewCardProps) {
     review.what_went_well || review.what_to_improve || review.what_drained_energy || review.ai_summary || "Reflection saved.";
 
   return (
-    <GlassCard className="p-4">
+    <GlassCard className="p-4" data-testid="review-card">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">

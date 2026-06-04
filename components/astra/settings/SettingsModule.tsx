@@ -84,6 +84,9 @@ export function SettingsModule({
   }
 
   async function saveAIBehavior(values: AIBehaviorSettingsInput) {
+    setError(null);
+    setSuccess(null);
+
     await savePreferences(
       {
         ai_tone: values.aiTone,
@@ -93,10 +96,14 @@ export function SettingsModule({
         course_correction_enabled: values.courseCorrectionEnabled,
       },
       "AI Copilot settings saved.",
+      () => {
+        window.localStorage.setItem("astra:ai-behavior-preferences", JSON.stringify(values));
+        setSuccess("AI Copilot settings saved locally. Apply the Supabase personalization migration to sync them.");
+      },
     );
   }
 
-  async function savePreferences(payload: Partial<UserPreferences>, successMessage: string) {
+  async function savePreferences(payload: Partial<UserPreferences>, successMessage: string, onMissingColumns?: () => void) {
     setError(null);
     setSuccess(null);
 
@@ -113,6 +120,11 @@ export function SettingsModule({
       .single();
 
     if (saveError) {
+      if (onMissingColumns && isSchemaCacheColumnError(saveError.message)) {
+        onMissingColumns();
+        return;
+      }
+
       setError(saveError.message);
       return;
     }
@@ -160,4 +172,8 @@ export function SettingsModule({
       ) : null}
     </div>
   );
+}
+
+function isSchemaCacheColumnError(message: string) {
+  return message.includes("schema cache") && message.includes("user_preferences");
 }

@@ -45,6 +45,7 @@ export function DailyTimeline({ blocks, onEdit, onDelete, onNewBlock }: DailyTim
           <motion.div
             animate={{ opacity: 1, y: 0 }}
             className="grid gap-4 rounded-lg border border-white/10 bg-white/[0.04] p-4 sm:grid-cols-[1fr_auto]"
+            data-testid="time-block-card"
             initial={{ opacity: 0, y: 8 }}
             key={block.id}
             transition={{ delay: index * 0.03, duration: 0.25 }}

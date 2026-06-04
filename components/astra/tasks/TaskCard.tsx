@@ -31,7 +31,10 @@ export function TaskCard({ task, onToggleComplete, onEdit, onDelete }: TaskCardP
   const complete = task.status === "completed";
 
   return (
-    <article className={cn("rounded-xl border border-white/10 bg-white/[0.04] p-4 transition hover:border-cyan-200/20", complete && "opacity-70")}>
+    <article
+      className={cn("rounded-xl border border-white/10 bg-white/[0.04] p-4 transition hover:border-cyan-200/20", complete && "opacity-70")}
+      data-testid="task-card"
+    >
       <div className="flex items-start gap-3">
         <button
           aria-label={complete ? "Mark task incomplete" : "Mark task complete"}

@@ -1,19 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, Tooltip } from "recharts";
 
 import { EmptyState, GlassCard, SectionHeader } from "@/components/astra";
+import { SafeResponsiveContainer } from "@/components/astra/charts/SafeResponsiveContainer";
 import { Badge } from "@/components/ui/badge";
 import { formatMinutes, getDistribution, type AstraTimeBlock } from "@/components/astra/time/time-utils";
 
 export function TimeDistributionChart({ blocks }: { blocks: AstraTimeBlock[] }) {
-  const [mounted, setMounted] = useState(false);
   const data = getDistribution(blocks);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <GlassCard className="p-5">
@@ -24,9 +19,8 @@ export function TimeDistributionChart({ blocks }: { blocks: AstraTimeBlock[] }) 
         </div>
       ) : (
         <div className="mt-5 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="h-72 min-h-72">
-            {mounted ? (
-              <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
+          <div className="h-72 min-h-72 min-w-[1px]">
+            <SafeResponsiveContainer>
                 <PieChart>
                   <Pie
                     cx="50%"
@@ -53,8 +47,7 @@ export function TimeDistributionChart({ blocks }: { blocks: AstraTimeBlock[] }) 
                     formatter={(value) => [formatMinutes(Number(value)), "Time"]}
                   />
                 </PieChart>
-              </ResponsiveContainer>
-            ) : null}
+            </SafeResponsiveContainer>
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2">

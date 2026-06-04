@@ -20,7 +20,7 @@ type MealCardProps = {
 
 export function MealCard({ meal, onEdit, onDelete }: MealCardProps) {
   return (
-    <GlassCard className="p-4">
+    <GlassCard className="p-4" data-testid="meal-card">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
