@@ -129,4 +129,4 @@ Dashboard Quick Capture:
 
 ## Testing
 
-- End-toEnd testing using Playwright
+- End-to-End testing using Playwright
