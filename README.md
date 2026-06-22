@@ -126,3 +126,7 @@ Dashboard Quick Capture:
 - Wearable integration
 - Deeper AI planning memory
 - Supabase-backed appearance preferences
+
+## Testing
+
+- End-toEnd testing using Playwright
