@@ -43,7 +43,8 @@ Automated checks:
 - `npm run typecheck` passed.
 - `npm run test` passed.
 - `npm run build` passed.
-- `ASTRA_TEST_EMAIL=... ASTRA_TEST_PASSWORD=... npm run test:e2e` passed with the seeded live Supabase test account.
+- Previous `ASTRA_TEST_EMAIL=... ASTRA_TEST_PASSWORD=... npm run test:e2e` passed with the seeded live Supabase test account.
+- Latest production-readiness E2E retry was blocked at login by browser Supabase Auth `Failed to fetch`; rerun from a network environment that can reach the configured Supabase Auth endpoint.
 
 Smoke checks:
 

@@ -7,6 +7,10 @@ test.describe("authenticated Astra module CRUD", () => {
   test.skip(!email || !password, "Set ASTRA_TEST_EMAIL and ASTRA_TEST_PASSWORD to run authenticated CRUD E2E.");
 
   test("covers authenticated CRUD flows across Astra modules", async ({ page }) => {
+    page.on("dialog", async (dialog) => {
+      await dialog.accept();
+    });
+
     const stamp = Date.now();
     const ids = {
       task: `E2E Task ${stamp}`,

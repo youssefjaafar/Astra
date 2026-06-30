@@ -118,6 +118,8 @@ export function WorkoutsModule({ initialWorkouts, initialWeeklyTarget, initialEr
   }
 
   async function deleteWorkout(workout: AstraWorkout) {
+    if (!window.confirm(`Delete "${workout.title}"? This removes the training signal from Astra.`)) return;
+
     setError(null);
     const previousWorkouts = workouts;
     setWorkouts((current) => current.filter((item) => item.id !== workout.id));

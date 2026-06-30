@@ -92,6 +92,8 @@ export function MealsModule({ initialMeals, initialWaterLogs, initialWaterTarget
   }
 
   async function deleteMeal(meal: AstraMeal) {
+    if (!window.confirm(`Delete "${meal.title}"? This removes the fuel signal from Astra.`)) return;
+
     setError(null);
     const previousMeals = meals;
     setMeals((current) => current.filter((item) => item.id !== meal.id));
@@ -125,6 +127,8 @@ export function MealsModule({ initialMeals, initialWaterLogs, initialWaterTarget
   }
 
   async function deleteWater(log: WaterLog) {
+    if (!window.confirm("Undo the latest water signal?")) return;
+
     setError(null);
     const previousLogs = waterLogs;
     setWaterLogs((current) => current.filter((item) => item.id !== log.id));

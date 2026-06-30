@@ -92,6 +92,8 @@ export function TimeOrbitModule({ initialBlocks, initialError, userId }: TimeOrb
   }
 
   async function deleteBlock(block: AstraTimeBlock) {
+    if (!window.confirm(`Delete "${block.title}"? This removes the time signal from Astra.`)) return;
+
     setError(null);
     const previousBlocks = blocks;
     setBlocks((current) => current.filter((item) => item.id !== block.id));

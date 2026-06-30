@@ -20,17 +20,20 @@ Astra is a calm futuristic personal life operating system. It brings tasks, habi
 Create `.env.local` and set:
 
 ```bash
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 AI_PROVIDER=openai
 OPENAI_API_KEY=
 OPENAI_BASE_URL=https://api.openai.com/v1
 OPENAI_MODEL=gpt-4o-mini
+AI_REQUEST_TIMEOUT_MS=15000
 ```
 
 Only `NEXT_PUBLIC_*` values are safe for browser code. Keep `SUPABASE_SERVICE_ROLE_KEY` and `OPENAI_API_KEY` server-only.
+
+Use `.env.example` as the canonical environment template.
 
 ## Supabase Setup
 
@@ -53,6 +56,8 @@ Recent preference fields include AI tone/style and AI feature toggles:
 
 Manual database types live in `lib/types/database.ts`.
 
+See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for production setup, RLS verification, Data API access, and auth callback configuration.
+
 ## AI Setup
 
 AI provider access is isolated in `lib/ai/provider.ts`. Current AI routes:
@@ -71,11 +76,19 @@ npm install
 npm run dev
 ```
 
-## Build
+## Build And QA
 
 ```bash
+npm run lint
 npm run typecheck
 npm run build
+npm run test
+```
+
+Authenticated Playwright E2E can be run with a seeded test user:
+
+```bash
+ASTRA_TEST_EMAIL=<test-email> ASTRA_TEST_PASSWORD=<test-password> npm run test:e2e
 ```
 
 ## Main Modules
@@ -97,6 +110,7 @@ npm run build
 - `/onboarding` creates profile and preferences.
 - `middleware.ts` protects app routes.
 - Users without preferences are routed to onboarding.
+- Auth email redirects use `NEXT_PUBLIC_APP_URL` and `/auth/callback`.
 
 ## Quick Capture
 
@@ -113,9 +127,19 @@ Dashboard Quick Capture:
 
 - Appearance preferences are currently stored in `localStorage`.
 - AI responses depend on available tracked data and configured provider keys.
+- If the AI provider is missing, quota-limited, or slow, routes return safe user-facing errors.
 - Screen time is approximated from `time_blocks.category = 'scrolling'`.
 - Sleep is tracked through `time_blocks.category = 'sleep'`.
 - Some integrations are represented as planned future work.
+
+## Deployment
+
+Astra is ready for Vercel deployment with Supabase as the backend.
+
+- [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md): Vercel setup, env vars, Supabase redirects, deployment checks.
+- [SUPABASE_SETUP.md](./SUPABASE_SETUP.md): Supabase project setup, migrations, RLS verification.
+- [GO_LIVE_CHECKLIST.md](./GO_LIVE_CHECKLIST.md): final production QA checklist.
+- [PRODUCTION_NOTES.md](./PRODUCTION_NOTES.md): launch notes and remaining limitations.
 
 ## Roadmap
 
@@ -129,4 +153,5 @@ Dashboard Quick Capture:
 
 ## Testing
 
-- End-to-End testing using Playwright
+- Unit/static checks: `npm run test`
+- End-to-end testing: `npm run test:e2e`

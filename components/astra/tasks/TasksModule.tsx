@@ -171,6 +171,8 @@ export function TasksModule({ initialTasks, initialError, userId }: TasksModuleP
   }
 
   async function deleteTask(task: AstraTask) {
+    if (!window.confirm(`Delete "${task.title}"? This removes the task signal from Astra.`)) return;
+
     setError(null);
     const previousTasks = tasks;
     setTasks((current) => current.filter((item) => item.id !== task.id));

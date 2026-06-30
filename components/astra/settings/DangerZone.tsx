@@ -30,6 +30,8 @@ export function DangerZone({ onSuccess, onError }: DangerZoneProps) {
   }
 
   function deleteLocalPreferences() {
+    if (!window.confirm("Delete local UI preferences stored in this browser?")) return;
+
     window.localStorage.removeItem(appearanceStorageKey);
     onSuccess("Local UI preferences deleted.");
   }

@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
+import { getAuthCallbackUrl } from "@/lib/auth/redirect";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isMissingTableError } from "@/lib/supabase/errors";
 import { authEmailSchema, signupSchema, type SignupInput } from "@/lib/validations/auth";
@@ -40,7 +41,7 @@ export function SignupForm() {
         data: {
           display_name: displayName,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+        emailRedirectTo: getAuthCallbackUrl("/onboarding"),
       },
     });
 
@@ -92,7 +93,7 @@ export function SignupForm() {
       type: "signup",
       email: parsed.data.email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+        emailRedirectTo: getAuthCallbackUrl("/onboarding"),
       },
     });
 
