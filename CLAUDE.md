@@ -54,3 +54,13 @@ Never let `SUPABASE_SERVICE_ROLE_KEY` or `OPENAI_API_KEY` reach browser code; on
 ## Before Supabase/schema work
 
 Read the vendored skills in `.agents/skills/supabase/SKILL.md` and `.agents/skills/supabase-postgres-best-practices/SKILL.md` (pinned by `skills-lock.json` — don't edit them). Deployment/ops docs: `SUPABASE_SETUP.md`, `VERCEL_DEPLOYMENT.md`, `PRODUCTION_NOTES.md`, `GO_LIVE_CHECKLIST.md`, `QA_REPORT.md`.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

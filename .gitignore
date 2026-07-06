@@ -13,3 +13,10 @@ yarn-error.log*
 tsconfig.tsbuildinfo
 test-results
 playwright-report
+graphify-out/
+*.log
+yarn.lock
+package-lock.json
+pnp-lock.yaml
+build/
+.git/
