@@ -1,9 +1,9 @@
 import "server-only";
 
-import type { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { createServerDbClient } from "@/lib/db/server";
 import type { CopilotContextSummary } from "@/components/astra/ai/ai-utils";
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+type SupabaseServerClient = Awaited<ReturnType<typeof createServerDbClient>>;
 
 export async function fetchCopilotContext(supabase: SupabaseServerClient, userId: string) {
   const now = new Date();

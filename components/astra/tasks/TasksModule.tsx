@@ -11,7 +11,7 @@ import { TaskList } from "@/components/astra/tasks/TaskList";
 import { TaskSummaryCards } from "@/components/astra/tasks/TaskSummaryCards";
 import { applyTaskFilters, type AstraTask, type TaskFiltersState } from "@/components/astra/tasks/task-utils";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import type { TaskFormInput } from "@/lib/validations/tasks";
 
 type TasksModuleProps = {
@@ -50,7 +50,7 @@ export function TasksModule({ initialTasks, initialError, userId }: TasksModuleP
   async function createQuickTask(title: string) {
     setError(null);
     setLoadingMessage("Adding task...");
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const { data, error: insertError } = await supabase
       .from("tasks")
       .insert({
@@ -76,7 +76,7 @@ export function TasksModule({ initialTasks, initialError, userId }: TasksModuleP
   async function saveTask(values: TaskFormInput, task: AstraTask | null) {
     setError(null);
     setLoadingMessage(task ? "Saving task..." : "Creating task...");
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const dueAt = values.dueAt ? new Date(values.dueAt).toISOString() : null;
     const completedAt = values.status === "completed" ? task?.completed_at ?? new Date().toISOString() : null;
 
@@ -149,7 +149,7 @@ export function TasksModule({ initialTasks, initialError, userId }: TasksModuleP
       ),
     );
 
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const { data, error: updateError } = await supabase
       .from("tasks")
       .update({
@@ -177,7 +177,7 @@ export function TasksModule({ initialTasks, initialError, userId }: TasksModuleP
     const previousTasks = tasks;
     setTasks((current) => current.filter((item) => item.id !== task.id));
 
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const { error: deleteError } = await supabase.from("tasks").delete().eq("id", task.id).eq("user_id", userId);
 
     if (deleteError) {

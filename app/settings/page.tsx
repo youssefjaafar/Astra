@@ -4,12 +4,12 @@ import { SectionHeader } from "@/components/astra";
 import { SettingsModule } from "@/components/astra/settings";
 import { Badge } from "@/components/ui/badge";
 import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createServerDbClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

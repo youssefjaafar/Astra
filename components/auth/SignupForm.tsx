@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
 import { getAuthCallbackUrl } from "@/lib/auth/redirect";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
+import { supportsEmailAuthFlows } from "@/lib/db/config";
 import { isMissingTableError } from "@/lib/supabase/errors";
 import { authEmailSchema, signupSchema, type SignupInput } from "@/lib/validations/auth";
 
@@ -32,7 +33,7 @@ export function SignupForm() {
   async function onSubmit(values: SignupInput) {
     setError(null);
     setConfirmationMessage(null);
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const displayName = values.email.split("@")[0];
     const { data, error: signupError } = await supabase.auth.signUp({
       email: values.email,
@@ -88,7 +89,7 @@ export function SignupForm() {
     setConfirmationMessage(null);
     setResendLoading(true);
 
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const { error: resendError } = await supabase.auth.resend({
       type: "signup",
       email: parsed.data.email,
@@ -149,10 +150,12 @@ export function SignupForm() {
         Create Command Center
       </Button>
 
-      <Button className="w-full" disabled={resendLoading} onClick={resendConfirmation} type="button" variant="secondary">
-        {resendLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-        Resend Confirmation Link
-      </Button>
+      {supportsEmailAuthFlows() ? (
+        <Button className="w-full" disabled={resendLoading} onClick={resendConfirmation} type="button" variant="secondary">
+          {resendLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+          Resend Confirmation Link
+        </Button>
+      ) : null}
 
       <p className="text-center text-sm text-slate-500">
         Already have an account?{" "}

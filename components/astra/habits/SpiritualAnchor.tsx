@@ -7,7 +7,7 @@ import { GlassCard, SectionHeader } from "@/components/astra";
 import type { PrayerLog } from "@/components/astra/habits/habit-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import { cn } from "@/lib/utils";
 
 const prayers = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"] as const;
@@ -19,7 +19,7 @@ type SpiritualAnchorProps = {
 };
 
 export function SpiritualAnchor({ userId, initialPrayerLogs, onError }: SpiritualAnchorProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [logs, setLogs] = useState(initialPrayerLogs);
   const [savingPrayer, setSavingPrayer] = useState<string | null>(null);
 

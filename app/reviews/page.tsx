@@ -4,12 +4,12 @@ import { ReviewsModule } from "@/components/astra/reviews";
 import { getWeekRange, getWeekStart, todayDateString } from "@/components/astra/reviews/review-utils";
 import { fetchReviewSignals } from "@/lib/reviews/server";
 import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewsPage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createServerDbClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

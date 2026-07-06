@@ -13,7 +13,7 @@ import { NutritionSummaryCards } from "@/components/astra/meals/NutritionSummary
 import { ProteinSignal } from "@/components/astra/meals/ProteinSignal";
 import { type AstraMeal, type WaterLog } from "@/components/astra/meals/nutrition-utils";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import type { MealFormInput } from "@/lib/validations/nutrition";
 
 type MealsModuleProps = {
@@ -25,7 +25,7 @@ type MealsModuleProps = {
 };
 
 export function MealsModule({ initialMeals, initialWaterLogs, initialWaterTargetMl, initialError, userId }: MealsModuleProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [meals, setMeals] = useState(initialMeals);
   const [waterLogs, setWaterLogs] = useState(initialWaterLogs);
   const [waterTargetMl] = useState(initialWaterTargetMl);

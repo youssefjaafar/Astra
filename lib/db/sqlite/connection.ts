@@ -1,0 +1,37 @@
+import "server-only";
+
+import fs from "node:fs";
+import path from "node:path";
+
+import Database from "better-sqlite3";
+
+import { SCHEMA_SQL } from "@/lib/db/sqlite/schema";
+
+// Cached on globalThis so dev-server HMR reuses one connection.
+const globalStore = globalThis as unknown as { __astraSqliteDb?: Database.Database };
+
+export function getSqliteDb(): Database.Database {
+  if (globalStore.__astraSqliteDb) return globalStore.__astraSqliteDb;
+
+  // Serverless filesystems are ephemeral: every instance would get its own
+  // database and all writes vanish on recycle. Fail loudly instead of
+  // silently losing user data.
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY) {
+    throw new Error(
+      "Astra's SQLite provider requires a persistent filesystem and cannot run on serverless hosts (Vercel/Lambda/Netlify). " +
+        "Set NEXT_PUBLIC_ASTRA_DB_PROVIDER=supabase and configure the Supabase env vars for this deployment, " +
+        "or self-host on a machine with durable disk (see VERCEL_DEPLOYMENT.md).",
+    );
+  }
+
+  const filePath = path.resolve(process.cwd(), process.env.ASTRA_SQLITE_PATH ?? "data/astra.db");
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+
+  const db = new Database(filePath);
+  db.pragma("journal_mode = WAL");
+  db.pragma("foreign_keys = ON");
+  db.exec(SCHEMA_SQL);
+
+  globalStore.__astraSqliteDb = db;
+  return db;
+}

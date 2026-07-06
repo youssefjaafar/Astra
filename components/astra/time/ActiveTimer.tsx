@@ -7,7 +7,7 @@ import { GlassCard, SectionHeader } from "@/components/astra";
 import { categoryLabels, formatMinutes } from "@/components/astra/time/time-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import { cn } from "@/lib/utils";
 import { timeCategories, type TimeCategory } from "@/lib/validations/time";
 
@@ -24,7 +24,7 @@ type ActiveTimerProps = {
 };
 
 export function ActiveTimer({ userId, onCreated, onError }: ActiveTimerProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const storageKey = useMemo(() => `astra.activeTimeTimer.${userId}`, [userId]);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<TimeCategory>("deep_work");

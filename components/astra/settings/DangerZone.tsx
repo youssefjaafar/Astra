@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { GlassCard, SectionHeader } from "@/components/astra";
 import { Button } from "@/components/ui/button";
 import { appearanceStorageKey } from "@/components/astra/settings/settings-utils";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 
 type DangerZoneProps = {
   onSuccess: (message: string) => void;
@@ -17,7 +17,7 @@ export function DangerZone({ onSuccess, onError }: DangerZoneProps) {
   const router = useRouter();
 
   async function signOut() {
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const { error } = await supabase.auth.signOut();
 
     if (error) {

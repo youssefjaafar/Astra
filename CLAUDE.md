@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-Astra is a personal life operating system: tasks, habits, time tracking, nutrition, workouts, reviews, and AI insights in one app, backed by Supabase Auth + Postgres.
+Astra is a personal life operating system: tasks, habits, time tracking, nutrition, workouts, reviews, and AI insights in one app. Data + auth run on **local SQLite by default** (better-sqlite3, `data/astra.db`), with the original Supabase implementation preserved behind the `lib/db/` abstraction (`NEXT_PUBLIC_ASTRA_DB_PROVIDER=supabase` reactivates it).
 
-Stack: Next.js 15 App Router, React 19, TypeScript (strict), Supabase (`@supabase/ssr`), Tailwind CSS 3 + shadcn-style primitives (new-york), Framer Motion, Recharts, Zod + React Hook Form, OpenAI-compatible AI provider.
+Stack: Next.js 15 App Router, React 19, TypeScript (strict), better-sqlite3 (default provider) / Supabase (`@supabase/ssr`, dormant provider), Tailwind CSS 3 + shadcn-style primitives (new-york), Framer Motion, Recharts, Zod + React Hook Form, OpenAI-compatible AI provider.
 
 ## Commands
 
@@ -16,7 +16,8 @@ Stack: Next.js 15 App Router, React 19, TypeScript (strict), Supabase (`@supabas
 
 - `app/` — routes. Landing `page.tsx`; auth pages `login/`, `signup/`, `onboarding/`; protected modules `dashboard/ tasks/ habits/ time/ meals/ workouts/ reviews/ ai/ settings/` (each with `loading.tsx`); `auth/callback/route.ts` (code exchange); `api/ai/{quick-capture,daily-review,weekly-report,copilot}/route.ts`.
 - `components/astra/<module>/` — per-module client components; shared primitives (GlassCard, StatCard, ProgressRing, SectionHeader, EmptyState, skeletons) re-exported from `components/astra/index.ts`. `components/ui/` shadcn primitives, `components/layout/` AppShell/Sidebar/Topbar/BottomNav, `components/auth/` auth forms.
-- `lib/supabase/` — the three clients (see below) + `errors.ts` (`isMissingTableError`).
+- `lib/db/` — **the data layer every consumer imports**: `config.ts` (provider switch), `client.ts`/`server.ts` (provider-routed factories), `builder.ts` (supabase-shaped chainable builder), `types.ts` (`DbClient` interface), `sqlite/` (schema + metadata, connection, executor, local auth). `app/api/db/route.ts` executes browser ops with user scoping; `app/api/auth/[action]/route.ts` handles session/signin/signup/signout in SQLite mode.
+- `lib/supabase/` — preserved Supabase clients (see below) + `errors.ts` (`isMissingTableError`). Only used when the provider is `supabase`; do not import directly from app code — go through `lib/db/`.
 - `lib/validations/` — Zod schemas per domain; enum const arrays mirror DB CHECK constraints.
 - `lib/types/database.ts` — **manually maintained** DB types (not generated).
 - `lib/ai/` — `provider.ts` (server-only, the only place that talks to the AI provider), `copilot-context.ts`, `prompts/`.
@@ -25,19 +26,21 @@ Stack: Next.js 15 App Router, React 19, TypeScript (strict), Supabase (`@supabas
 
 ## Core pattern
 
-Every protected page follows the same shape (see `app/tasks/page.tsx`): async **server component** exporting `dynamic = "force-dynamic"` → `createSupabaseServerClient()` → `getUser()`, `redirect("/login")` if null → fetch scoped `.eq("user_id", user.id)` → pass data as props to a `"use client"` `<Module>Module.tsx` in `components/astra/<module>/` that owns state and mutates via the browser client. **No server actions** — client components write directly through the browser Supabase client; AI work goes through `api/ai/*` route handlers.
+Every protected page follows the same shape (see `app/tasks/page.tsx`): async **server component** exporting `dynamic = "force-dynamic"` → `createServerDbClient()` → `getUser()`, `redirect("/login")` if null → fetch scoped `.eq("user_id", user.id)` → pass data as props to a `"use client"` `<Module>Module.tsx` in `components/astra/<module>/` that owns state and mutates via the browser client. **No server actions** — client components write through the browser db client (which POSTs to `/api/db` in SQLite mode); AI work goes through `api/ai/*` route handlers.
 
-## Supabase clients — pick the right one
+## Database clients — pick the right one
 
-- Browser / `"use client"` components: `createSupabaseBrowserClient()` from `lib/supabase/client.ts`
-- Server components / route handlers: `createSupabaseServerClient()` from `lib/supabase/server.ts` (cookie-bound, `server-only`)
-- Admin operations only: `createSupabaseServiceRoleClient()` (same file; uses `SUPABASE_SERVICE_ROLE_KEY`)
+- Browser / `"use client"` components: `createBrowserDbClient()` from `lib/db/client.ts`
+- Server components / route handlers: `createServerDbClient()` from `lib/db/server.ts` (cookie-bound, `server-only`)
+- Admin operations only (Supabase provider): `createSupabaseServiceRoleClient()` in `lib/supabase/server.ts` (uses `SUPABASE_SERVICE_ROLE_KEY`)
 
-Never let `SUPABASE_SERVICE_ROLE_KEY` or `OPENAI_API_KEY` reach browser code; only `NEXT_PUBLIC_*` vars are browser-safe. All tables use RLS with owner policies (`auth.uid() = user_id`) — always scope queries by `user_id`.
+Both return the `DbClient` interface (`lib/db/types.ts`) — a typed subset of the supabase-js surface (`from().select().eq().order()…`, `auth.getUser()` etc.), so code reads identically under either provider. Never let `SUPABASE_SERVICE_ROLE_KEY` or `OPENAI_API_KEY` reach browser code; only `NEXT_PUBLIC_*` vars are browser-safe. Row ownership: in SQLite mode the executor stamps/scopes every operation with the session user (`/api/db` and the server client both enforce it); under Supabase it's RLS (`auth.uid() = user_id`). Always still scope queries by `user_id` explicitly.
+
+Local auth (SQLite mode): `auth_users`/`auth_sessions` tables, scrypt password hashes, opaque 30-day session token in the `astra_session` httpOnly cookie. Middleware verifies sessions by fetching `/api/auth/session` (edge runtime can't touch SQLite). Magic links / email confirmation are Supabase-only; the forms hide those buttons via `supportsEmailAuthFlows()`.
 
 ## Sync invariants — change these together
 
-1. **DB CHECK constraints ↔ Zod enums ↔ types**: enum values in `supabase/migrations/` CHECK constraints, const arrays in `lib/validations/*.ts`, and `lib/types/database.ts` must stay in sync (types are hand-written, not generated).
+1. **DB CHECK constraints ↔ Zod enums ↔ types**: enum values in `supabase/migrations/` CHECK constraints, the SQLite schema + column metadata in `lib/db/sqlite/schema.ts`, const arrays in `lib/validations/*.ts`, and `lib/types/database.ts` must stay in sync (types are hand-written, not generated).
 2. **New protected route** → add to both `protectedRoutes` and `config.matcher` in `middleware.ts`, plus nav in `components/layout/` (Sidebar + BottomNav).
 3. **E2E hooks**: the spec (`tests/e2e/astra-authenticated-crud.spec.ts`) finds cards by `data-testid` (`task-card`, `habit-card`, `time-block-card`, `meal-card`, `workout-card`, `review-card`) — keep these when refactoring card components.
 

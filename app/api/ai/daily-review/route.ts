@@ -4,14 +4,14 @@ import { z } from "zod";
 import { buildDailyReviewMessages, formatDailySummary } from "@/lib/ai/prompts/reviews";
 import { AiProviderError, generateJsonCompletion } from "@/lib/ai/provider";
 import { fetchReviewSignals } from "@/lib/reviews/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 import { aiDailySummarySchema, dailyReviewAiRequestSchema } from "@/lib/validations/reviews";
 import { getDailySignalSummary, getDayRange } from "@/components/astra/reviews/review-utils";
 
 export async function POST(request: Request) {
   try {
     const body = dailyReviewAiRequestSchema.parse(await request.json());
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createServerDbClient();
     const {
       data: { user },
       error: userError,

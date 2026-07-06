@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 
 import { TimeOrbitModule } from "@/components/astra/time";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function TimePage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createServerDbClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

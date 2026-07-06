@@ -18,7 +18,7 @@ import {
 } from "@/components/astra/reviews/review-utils";
 import { GlassCard, SectionHeader } from "@/components/astra";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import type { DailyReviewFormInput } from "@/lib/validations/reviews";
 
 type ReviewsModuleProps = {
@@ -30,7 +30,7 @@ type ReviewsModuleProps = {
 };
 
 export function ReviewsModule({ initialDailyReviews, initialWeeklyReviews, initialSignals, initialError, userId }: ReviewsModuleProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [dailyReviews, setDailyReviews] = useState(() => sortDailyReviews(initialDailyReviews));
   const [weeklyReviews, setWeeklyReviews] = useState(() => sortWeeklyReviews(initialWeeklyReviews));
   const [selectedDate, setSelectedDate] = useState(todayDateString());

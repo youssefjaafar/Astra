@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 
 import { HabitsModule } from "@/components/astra/habits";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function HabitsPage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createServerDbClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

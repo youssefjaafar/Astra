@@ -2,14 +2,14 @@ import { redirect } from "next/navigation";
 
 import { MealsModule } from "@/components/astra/meals";
 import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
 
 const defaultWaterTargetMl = 2500;
 
 export default async function MealsPage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createServerDbClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -8,7 +8,7 @@ import { GlassCard, SectionHeader } from "@/components/astra";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import type { Json } from "@/lib/types/database";
 import { quickCaptureResultSchema, type QuickCaptureResult } from "@/lib/ai/prompts/quick-capture";
 
@@ -78,7 +78,7 @@ export function DashboardQuickCapture() {
     setIsParsing(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
+      const supabase = createBrowserDbClient();
       const {
         data: { user },
         error: userError,
@@ -165,7 +165,7 @@ export function DashboardQuickCapture() {
     setIsConfirming(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
+      const supabase = createBrowserDbClient();
       const {
         data: { user },
         error: userError,
@@ -177,7 +177,7 @@ export function DashboardQuickCapture() {
 
       await insertStructuredRecord(user.id, pendingSignal.result);
 
-      const supabaseAfterInsert = createSupabaseBrowserClient();
+      const supabaseAfterInsert = createBrowserDbClient();
       const { error: updateError } = await supabaseAfterInsert
         .from("quick_captures")
         .update({
@@ -212,7 +212,7 @@ export function DashboardQuickCapture() {
     }
 
     setError(null);
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const {
       data: { user },
       error: userError,
@@ -244,7 +244,7 @@ export function DashboardQuickCapture() {
 
   async function insertStructuredRecord(userId: string, result: QuickCaptureResult) {
     const payload = result.payload;
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
 
     if (result.type === "water") {
       const amountMl = getNumber(payload, "amount_ml");

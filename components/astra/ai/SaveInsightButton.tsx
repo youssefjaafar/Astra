@@ -4,7 +4,7 @@ import { Check, Loader2, Save } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import { saveInsightSchema, type CopilotAnswer } from "@/lib/validations/copilot";
 import type { AIInsight } from "@/components/astra/ai/ai-utils";
 
@@ -42,7 +42,7 @@ export function SaveInsightButton({ answer, userId, relatedPeriodStart, relatedP
       return;
     }
 
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const { data, error } = await supabase
       .from("ai_insights")
       .insert({

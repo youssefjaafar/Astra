@@ -13,7 +13,7 @@ import { WorkoutFormDialog } from "@/components/astra/workouts/WorkoutFormDialog
 import { WorkoutHistory } from "@/components/astra/workouts/WorkoutHistory";
 import { sortWorkoutsByTime, type AstraWorkout } from "@/components/astra/workouts/workout-utils";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import type { WorkoutFormInput } from "@/lib/validations/workouts";
 
 type WorkoutsModuleProps = {
@@ -24,7 +24,7 @@ type WorkoutsModuleProps = {
 };
 
 export function WorkoutsModule({ initialWorkouts, initialWeeklyTarget, initialError, userId }: WorkoutsModuleProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [workouts, setWorkouts] = useState(() => sortWorkoutsByTime(initialWorkouts));
   const [weeklyTarget] = useState(initialWeeklyTarget);
   const [error, setError] = useState<string | null>(initialError);

@@ -12,7 +12,7 @@ import { TimeInsightCards } from "@/components/astra/time/TimeInsightCards";
 import { TimeSummaryCards } from "@/components/astra/time/TimeSummaryCards";
 import { type AstraTimeBlock } from "@/components/astra/time/time-utils";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import type { TimeBlockFormInput } from "@/lib/validations/time";
 
 type TimeOrbitModuleProps = {
@@ -22,7 +22,7 @@ type TimeOrbitModuleProps = {
 };
 
 export function TimeOrbitModule({ initialBlocks, initialError, userId }: TimeOrbitModuleProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [blocks, setBlocks] = useState(initialBlocks);
   const [error, setError] = useState<string | null>(initialError);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);

@@ -13,12 +13,12 @@ import {
 import { GlassCard } from "@/components/astra";
 import { MotionPanel } from "@/components/motion-panel";
 import { getDashboardData } from "@/lib/dashboard/data";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createServerDbClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -1,9 +1,9 @@
 import "server-only";
 
-import type { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { createServerDbClient } from "@/lib/db/server";
 import type { ReviewSignals } from "@/components/astra/reviews/review-utils";
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+type SupabaseServerClient = Awaited<ReturnType<typeof createServerDbClient>>;
 
 type DateRange = {
   start: Date;

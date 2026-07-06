@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { GlassCard, SectionHeader } from "@/components/astra";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import { meditationLogSchema } from "@/lib/validations/habits";
 
 type MeditationQuickLogProps = {
@@ -17,7 +17,7 @@ type MeditationQuickLogProps = {
 const quickDurations = [5, 10, 15];
 
 export function MeditationQuickLog({ userId, onError }: MeditationQuickLogProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [customMinutes, setCustomMinutes] = useState("");
   const [saving, setSaving] = useState<number | "custom" | null>(null);
   const [lastLog, setLastLog] = useState<string | null>(null);

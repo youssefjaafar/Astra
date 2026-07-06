@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { GlassCard, SectionHeader } from "@/components/astra";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import { readingLogSchema, type ReadingLogInput } from "@/lib/validations/habits";
 
 type ReadingQuickLogProps = {
@@ -17,7 +17,7 @@ type ReadingQuickLogProps = {
 };
 
 export function ReadingQuickLog({ userId, onError }: ReadingQuickLogProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [lastLog, setLastLog] = useState<string | null>(null);
   const form = useForm<ReadingLogInput>({
     resolver: zodResolver(readingLogSchema),

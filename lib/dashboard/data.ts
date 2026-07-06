@@ -8,9 +8,9 @@ import type {
   WeeklyMissionSnapshot,
 } from "@/lib/types";
 import type { Database } from "@/lib/types/database";
-import type { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { createServerDbClient } from "@/lib/db/server";
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+type SupabaseServerClient = Awaited<ReturnType<typeof createServerDbClient>>;
 
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
 type TimeBlock = Database["public"]["Tables"]["time_blocks"]["Row"];

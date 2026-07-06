@@ -12,7 +12,7 @@ import { SettingsTabs } from "@/components/astra/settings/SettingsTabs";
 import { TrackingDefaultsSettings } from "@/components/astra/settings/TrackingDefaultsSettings";
 import type { AstraHabit, AstraProfile, SettingsTab, UserPreferences } from "@/components/astra/settings/settings-utils";
 import { GlassCard } from "@/components/astra";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import type { AIBehaviorSettingsInput, DailyTargetsInput, ProfileSettingsInput } from "@/lib/validations/settings";
 
 type SettingsModuleProps = {
@@ -34,7 +34,7 @@ export function SettingsModule({
   email,
   accountCreatedAt,
 }: SettingsModuleProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [profile, setProfile] = useState(initialProfile);
   const [preferences, setPreferences] = useState(initialPreferences);
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");

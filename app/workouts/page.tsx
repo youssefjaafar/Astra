@@ -2,14 +2,14 @@ import { redirect } from "next/navigation";
 
 import { WorkoutsModule } from "@/components/astra/workouts";
 import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
 
 const defaultWeeklyTarget = 3;
 
 export default async function WorkoutsPage() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createServerDbClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -4,13 +4,13 @@ import { z } from "zod";
 import { fetchCopilotContext } from "@/lib/ai/copilot-context";
 import { buildCopilotMessages } from "@/lib/ai/prompts/copilot";
 import { AiProviderError, generateJsonCompletion } from "@/lib/ai/provider";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 import { copilotAnswerSchema, copilotRequestSchema } from "@/lib/validations/copilot";
 
 export async function POST(request: Request) {
   try {
     const body = copilotRequestSchema.parse(await request.json());
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createServerDbClient();
     const {
       data: { user },
       error: userError,

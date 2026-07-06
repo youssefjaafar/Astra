@@ -1,11 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSafeRedirectPath } from "@/lib/auth/redirect";
+import { getDbProvider } from "@/lib/db/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isMissingTableError } from "@/lib/supabase/errors";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
+
+  if (getDbProvider() === "sqlite") {
+    const loginUrl = new URL("/login", requestUrl.origin);
+    loginUrl.searchParams.set("error", "Email links are not used in local mode. Sign in with your password.");
+    return NextResponse.redirect(loginUrl);
+  }
+
   const code = requestUrl.searchParams.get("code");
   const next = getSafeRedirectPath(requestUrl.searchParams.get("next"), "/dashboard");
 

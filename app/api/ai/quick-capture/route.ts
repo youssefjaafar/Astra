@@ -6,7 +6,7 @@ import {
   buildQuickCaptureMessages,
   quickCaptureResultSchema,
 } from "@/lib/ai/prompts/quick-capture";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 
 const quickCaptureRequestSchema = z.object({
   rawText: z.string().min(1).max(2000),
@@ -17,7 +17,7 @@ const quickCaptureRequestSchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = quickCaptureRequestSchema.parse(await request.json());
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createServerDbClient();
     const {
       data: { user },
       error: userError,
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 }
 
 async function getUserTimezone(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  supabase: Awaited<ReturnType<typeof createServerDbClient>>,
   userId: string,
 ) {
   const { data } = await supabase

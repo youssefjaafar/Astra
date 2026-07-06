@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { LiveDateTime } from "@/components/layout/LiveDateTime";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 
 export function Topbar() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export function Topbar() {
 
     async function loadProfile() {
       try {
-        const supabase = createSupabaseBrowserClient();
+        const supabase = createBrowserDbClient();
         const {
           data: { user },
         } = await supabase.auth.getUser();
@@ -53,7 +53,7 @@ export function Topbar() {
   }, []);
 
   async function handleLogout() {
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();

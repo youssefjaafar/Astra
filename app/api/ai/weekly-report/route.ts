@@ -4,7 +4,7 @@ import { z } from "zod";
 import { buildWeeklyReportMessages, formatWeeklyReport } from "@/lib/ai/prompts/reviews";
 import { AiProviderError, generateJsonCompletion } from "@/lib/ai/provider";
 import { fetchReviewSignals } from "@/lib/reviews/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerDbClient } from "@/lib/db/server";
 import { aiWeeklyReportSchema, weeklyReportAiRequestSchema } from "@/lib/validations/reviews";
 import {
   filterSignalsForDay,
@@ -20,7 +20,7 @@ import {
 export async function POST(request: Request) {
   try {
     const body = weeklyReportAiRequestSchema.parse(await request.json());
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createServerDbClient();
     const {
       data: { user },
       error: userError,

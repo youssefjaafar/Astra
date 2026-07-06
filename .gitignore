@@ -20,3 +20,6 @@ package-lock.json
 pnp-lock.yaml
 build/
 .git/
+
+# Local SQLite database
+data/

@@ -20,7 +20,7 @@ import {
 } from "@/components/astra/habits/habit-utils";
 import { GlassCard, SectionHeader } from "@/components/astra";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import type { HabitFormInput, HabitLogInput } from "@/lib/validations/habits";
 
 type HabitsModuleProps = {
@@ -32,7 +32,7 @@ type HabitsModuleProps = {
 };
 
 export function HabitsModule({ initialHabits, initialHabitLogs, initialPrayerLogs, initialError, userId }: HabitsModuleProps) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => createBrowserDbClient(), []);
   const [habits, setHabits] = useState(initialHabits);
   const [habitLogs, setHabitLogs] = useState(initialHabitLogs);
   const [error, setError] = useState(initialError ?? "");

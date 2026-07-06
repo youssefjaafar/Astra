@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createBrowserDbClient } from "@/lib/db/client";
 import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
 import { onboardingSchema, type OnboardingInput } from "@/lib/validations/auth";
 
@@ -37,7 +37,7 @@ export function OnboardingForm() {
 
   async function onSubmit(values: OnboardingInput) {
     setError(null);
-    const supabase = createSupabaseBrowserClient();
+    const supabase = createBrowserDbClient();
     const {
       data: { user },
       error: userError,
