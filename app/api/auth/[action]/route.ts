@@ -5,7 +5,6 @@ import {
   createLocalSession,
   createLocalUser,
   deleteLocalSession,
-  ensureLocalProfile,
   getUserBySessionToken,
   sessionCookieOptions,
   userHasLocalPreferences,
@@ -23,6 +22,15 @@ const authAttempts = new Map<string, { count: number; resetAt: number }>();
 
 function isRateLimited(key: string): boolean {
   const now = Date.now();
+
+  // Sweep expired entries once the map grows, otherwise every unique email
+  // ever attempted stays resident for the life of the process.
+  if (authAttempts.size > 100) {
+    for (const [staleKey, staleEntry] of authAttempts) {
+      if (staleEntry.resetAt < now) authAttempts.delete(staleKey);
+    }
+  }
+
   const entry = authAttempts.get(key);
 
   if (!entry || entry.resetAt < now) {
@@ -59,8 +67,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ user: null, onboarded: false });
     }
 
-    ensureLocalProfile(user.id, user.email?.split("@")[0] ?? null);
-
+    // No profile upsert here: every local-user creation path (signup route,
+    // scripts/local-user.mjs) already guarantees the profile row, and this
+    // probe runs on every navigation — it must stay read-only.
     return NextResponse.json({ user, onboarded: userHasLocalPreferences(user.id) });
   } catch (error) {
     return databaseErrorResponse(error);

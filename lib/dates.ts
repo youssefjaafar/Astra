@@ -6,10 +6,42 @@
 
 const FALLBACK_TIMEZONE = "America/Detroit";
 
+// Intl.DateTimeFormat construction is the expensive part of Intl (ICU locale
+// + timezone data resolution); formatting with an existing instance is cheap.
+// A request touches these helpers a dozen-plus times, so instances are cached
+// per timezone. Invalid timezones throw during construction and are never cached.
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
+const offsetFormatters = new Map<string, Intl.DateTimeFormat>();
+const weekdayFormatters = new Map<string, Intl.DateTimeFormat>();
+
+function cachedFormatter(
+  cache: Map<string, Intl.DateTimeFormat>,
+  timeZone: string,
+  options: Intl.DateTimeFormatOptions,
+  locale: string,
+): Intl.DateTimeFormat {
+  let formatter = cache.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, { ...options, timeZone });
+    if (cache.size >= 50) cache.clear();
+    cache.set(timeZone, formatter);
+  }
+  return formatter;
+}
+
+function getDateFormatter(timeZone: string) {
+  return cachedFormatter(
+    dateFormatters,
+    timeZone,
+    { year: "numeric", month: "2-digit", day: "2-digit" },
+    "en-CA",
+  );
+}
+
 export function resolveTimeZone(timeZone: string | null | undefined): string {
   if (timeZone) {
     try {
-      new Intl.DateTimeFormat("en-US", { timeZone });
+      getDateFormatter(timeZone);
       return timeZone;
     } catch {
       // invalid/free-text timezone from onboarding input — fall back
@@ -21,29 +53,25 @@ export function resolveTimeZone(timeZone: string | null | undefined): string {
 type DateParts = { year: number; month: number; day: number };
 
 function getDateParts(date: Date, timeZone: string): DateParts {
-  const [year, month, day] = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  })
-    .format(date)
-    .split("-")
-    .map(Number);
+  const [year, month, day] = getDateFormatter(timeZone).format(date).split("-").map(Number);
   return { year, month, day };
 }
 
 function timeZoneOffsetMs(date: Date, timeZone: string): number {
-  const parts = new Intl.DateTimeFormat("en-US", {
+  const parts = cachedFormatter(
+    offsetFormatters,
     timeZone,
-    hour12: false,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  })
+    {
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    },
+    "en-US",
+  )
     .formatToParts(date)
     .reduce<Record<string, string>>((acc, part) => {
       acc[part.type] = part.value;
@@ -93,7 +121,9 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 /** Sunday-based, matching the client-side getDay() logic used elsewhere. */
 export function startOfWeekInTimeZone(now: Date, timeZone: string): Date {
-  const weekday = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" }).format(now);
+  const weekday = cachedFormatter(weekdayFormatters, timeZone, { weekday: "short" }, "en-US").format(
+    now,
+  );
   const index = Math.max(0, WEEKDAYS.indexOf(weekday));
   const parts = getDateParts(now, timeZone);
   return zonedMidnight({ ...parts, day: parts.day - index }, timeZone);
@@ -101,10 +131,5 @@ export function startOfWeekInTimeZone(now: Date, timeZone: string): Date {
 
 /** YYYY-MM-DD of "today" as the user experiences it (for review_date lookups). */
 export function dateStringInTimeZone(now: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
+  return getDateFormatter(timeZone).format(now);
 }

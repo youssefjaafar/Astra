@@ -175,10 +175,10 @@ export function getWeeklyHabitCompletionData(signals: ReviewSignals, weekStart: 
   });
 }
 
+const weekdayFormatter = new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "UTC" });
+
 function weekdayLabel(dateString: string) {
-  return new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "UTC" }).format(
-    new Date(`${dateString}T00:00:00Z`),
-  );
+  return weekdayFormatter.format(new Date(`${dateString}T00:00:00Z`));
 }
 
 export function formatMinutes(minutes: number) {

@@ -2,7 +2,7 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 
-import { getSqliteDb } from "@/lib/db/sqlite/connection";
+import { getSqliteDb, prepareCached } from "@/lib/db/sqlite/connection";
 import { TABLES, type TableMeta } from "@/lib/db/sqlite/schema";
 import type { DbError, DbExecuteResult, DbFilter, DbOperation } from "@/lib/db/types";
 
@@ -65,9 +65,7 @@ function runSelect(op: DbOperation, meta: TableMeta, userId: string): DbExecuteR
   const limitSql = typeof op.limit === "number" ? ` LIMIT ${Math.max(0, Math.floor(op.limit))}` : "";
 
   const sql = `SELECT ${buildProjection(op, meta)} FROM "${op.table}"${whereSql}${orderSql}${limitSql}`;
-  const rows = getSqliteDb()
-    .prepare(sql)
-    .all(...params) as Record<string, unknown>[];
+  const rows = prepareCached(sql).all(...params) as Record<string, unknown>[];
 
   return shapeRows(rows.map((row) => fromDbRow(row, meta)), op);
 }
@@ -117,7 +115,7 @@ function runInsert(op: DbOperation, meta: TableMeta, userId: string): DbExecuteR
     }
 
     const sql = `INSERT INTO "${op.table}" (${columns.map((c) => `"${c}"`).join(", ")}) VALUES (${placeholders})${conflictSql} RETURNING *`;
-    const result = db.prepare(sql).all(...values) as Record<string, unknown>[];
+    const result = prepareCached(sql).all(...values) as Record<string, unknown>[];
     inserted.push(...result);
   };
 
@@ -152,9 +150,7 @@ function runUpdate(op: DbOperation, meta: TableMeta, userId: string): DbExecuteR
   const { whereSql, params } = buildWhere(op, meta, userId);
 
   const sql = `UPDATE "${op.table}" SET ${setSql}${whereSql} RETURNING *`;
-  const rows = getSqliteDb()
-    .prepare(sql)
-    .all(...setParams, ...params) as Record<string, unknown>[];
+  const rows = prepareCached(sql).all(...setParams, ...params) as Record<string, unknown>[];
 
   if (!op.returning) return { data: null, error: null };
 
@@ -164,9 +160,7 @@ function runUpdate(op: DbOperation, meta: TableMeta, userId: string): DbExecuteR
 function runDelete(op: DbOperation, meta: TableMeta, userId: string): DbExecuteResult {
   const { whereSql, params } = buildWhere(op, meta, userId);
   const sql = `DELETE FROM "${op.table}"${whereSql} RETURNING *`;
-  const rows = getSqliteDb()
-    .prepare(sql)
-    .all(...params) as Record<string, unknown>[];
+  const rows = prepareCached(sql).all(...params) as Record<string, unknown>[];
 
   if (!op.returning) return { data: null, error: null };
 

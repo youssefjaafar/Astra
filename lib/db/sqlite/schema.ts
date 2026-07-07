@@ -447,22 +447,23 @@ create table if not exists user_preferences (
   updated_at text default (${NOW})
 );
 
-create index if not exists tasks_user_id_idx on tasks(user_id);
-create index if not exists tasks_status_idx on tasks(status);
-create index if not exists habits_user_id_idx on habits(user_id);
-create index if not exists habit_logs_user_id_idx on habit_logs(user_id);
-create index if not exists habit_logs_logged_at_idx on habit_logs(logged_at);
-create index if not exists time_blocks_user_id_idx on time_blocks(user_id);
-create index if not exists time_blocks_start_time_idx on time_blocks(start_time);
-create index if not exists meals_user_id_idx on meals(user_id);
-create index if not exists meals_logged_at_idx on meals(logged_at);
-create index if not exists water_logs_user_id_idx on water_logs(user_id);
-create index if not exists workouts_user_id_idx on workouts(user_id);
-create index if not exists prayer_logs_user_id_idx on prayer_logs(user_id);
-create index if not exists meditation_logs_user_id_idx on meditation_logs(user_id);
-create index if not exists reading_logs_user_id_idx on reading_logs(user_id);
-create index if not exists daily_reviews_user_id_idx on daily_reviews(user_id);
-create index if not exists weekly_reviews_user_id_idx on weekly_reviews(user_id);
-create index if not exists ai_insights_user_id_idx on ai_insights(user_id);
-create index if not exists quick_captures_user_id_idx on quick_captures(user_id);
+-- Composite indexes match the dominant query shape (user_id scope + time
+-- range/order), letting SQLite satisfy WHERE and ORDER BY from one index.
+-- SQLite uses at most one index per table access, so separate single-column
+-- indexes could not serve both halves of these queries.
+create index if not exists tasks_user_status_idx on tasks(user_id, status);
+create index if not exists tasks_user_created_idx on tasks(user_id, created_at);
+create index if not exists habits_user_created_idx on habits(user_id, created_at);
+create index if not exists habit_logs_user_logged_idx on habit_logs(user_id, logged_at);
+create index if not exists time_blocks_user_start_idx on time_blocks(user_id, start_time);
+create index if not exists meals_user_logged_idx on meals(user_id, logged_at);
+create index if not exists water_logs_user_logged_idx on water_logs(user_id, logged_at);
+create index if not exists workouts_user_logged_idx on workouts(user_id, logged_at);
+create index if not exists prayer_logs_user_logged_idx on prayer_logs(user_id, logged_at);
+create index if not exists meditation_logs_user_logged_idx on meditation_logs(user_id, logged_at);
+create index if not exists reading_logs_user_logged_idx on reading_logs(user_id, logged_at);
+create index if not exists daily_reviews_user_date_idx on daily_reviews(user_id, review_date);
+create index if not exists weekly_reviews_user_week_idx on weekly_reviews(user_id, week_start);
+create index if not exists ai_insights_user_created_idx on ai_insights(user_id, created_at);
+create index if not exists quick_captures_user_created_idx on quick_captures(user_id, created_at);
 `;

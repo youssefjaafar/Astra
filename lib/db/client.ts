@@ -15,6 +15,12 @@ const LOCAL_MODE_UNSUPPORTED: DbError = {
   message: "Email-based auth flows are not available in local SQLite mode. Use your password.",
 };
 
+// The sqlite HTTP client is stateless (per-query builders are created by
+// from()), so components calling createBrowserDbClient() in every action
+// handler share one instance instead of allocating a new one each call.
+// (Supabase's createBrowserClient already memoizes internally.)
+let sqliteBrowserClient: DbClient | null = null;
+
 /**
  * Browser-side database client. In SQLite mode all reads/writes go through
  * /api/db and /api/auth/* route handlers (SQLite only exists on the server);
@@ -25,10 +31,12 @@ export function createBrowserDbClient(): DbClient {
     return createSupabaseBrowserClient() as unknown as DbClient;
   }
 
-  return {
+  sqliteBrowserClient ??= {
     from: <T extends TableName>(table: T) => createTableBuilder(httpExecutor, table),
     auth: httpAuth,
   };
+
+  return sqliteBrowserClient;
 }
 
 async function httpExecutor(op: DbOperation): Promise<DbExecuteResult> {

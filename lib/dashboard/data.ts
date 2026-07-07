@@ -205,10 +205,14 @@ export async function getDashboardData(supabase: SupabaseServerClient, userId: s
   const latestInsight = insightResult.data?.[0] ?? null;
   const displayName = profileResult.data?.display_name || email?.split("@")[0] || "Commander";
 
+  // One grouping pass serves the hero focus state, the system statuses, and
+  // the time-distribution chart, instead of re-filtering the same array per metric.
+  const todayMinutesByCategory = minutesByCategory(todayTimeBlocks);
+
   const statuses = getSystemStatuses({
     preferences,
     todayMeals,
-    todayTimeBlocks,
+    todayMinutesByCategory,
     todayWater,
     weekWorkouts,
     weekPrayer,
@@ -216,8 +220,8 @@ export async function getDashboardData(supabase: SupabaseServerClient, userId: s
     weekReading,
   });
   const dayCompletion = Math.round(statuses.reduce((sum, status) => sum + status.progress, 0) / Math.max(statuses.length, 1));
-  const deepWorkMinutes = sumMinutes(todayTimeBlocks.filter((block) => block.category === "deep_work"));
-  const scrollingMinutes = sumMinutes(todayTimeBlocks.filter((block) => block.category === "scrolling"));
+  const deepWorkMinutes = todayMinutesByCategory.deep_work ?? 0;
+  const scrollingMinutes = todayMinutesByCategory.scrolling ?? 0;
 
   return {
     hero: {
@@ -228,7 +232,7 @@ export async function getDashboardData(supabase: SupabaseServerClient, userId: s
     },
     mission: getMission(tasks, latestInsight, now, todayStart, tomorrowStart),
     statuses,
-    timeDistribution: getTimeDistribution(todayTimeBlocks),
+    timeDistribution: getTimeDistribution(todayMinutesByCategory),
     insight: latestInsight ? toDashboardInsight(latestInsight) : null,
     dailyReview: dailyReviewResult.data ?? null,
     weeklySnapshot: getWeeklySnapshot({
@@ -283,7 +287,7 @@ function getMission(tasks: Task[], latestInsight: AiInsight | null, now: Date, t
 function getSystemStatuses({
   preferences,
   todayMeals,
-  todayTimeBlocks,
+  todayMinutesByCategory,
   todayWater,
   weekWorkouts,
   weekPrayer,
@@ -292,7 +296,7 @@ function getSystemStatuses({
 }: {
   preferences: UserPreferences | null;
   todayMeals: Meal[];
-  todayTimeBlocks: TimeBlock[];
+  todayMinutesByCategory: Record<string, number>;
   todayWater: WaterLog[];
   weekWorkouts: Workout[];
   weekPrayer: PrayerLog[];
@@ -308,8 +312,8 @@ function getSystemStatuses({
   const prayerCompletions = weekPrayer.filter((log) => log.completed).length;
   const meditationMinutes = weekMeditation.reduce((sum, log) => sum + Number(log.duration_minutes ?? 0), 0);
   const meditationTarget = (preferences?.meditation_target_minutes ?? 10) * 7;
-  const sleepMinutes = sumMinutes(todayTimeBlocks.filter((block) => block.category === "sleep"));
-  const screenMinutes = sumMinutes(todayTimeBlocks.filter((block) => block.category === "scrolling"));
+  const sleepMinutes = todayMinutesByCategory.sleep ?? 0;
+  const screenMinutes = todayMinutesByCategory.scrolling ?? 0;
   const screenLimit = preferences?.screen_time_limit_minutes ?? 240;
 
   return [
@@ -388,12 +392,14 @@ function getSystemStatuses({
   ];
 }
 
-function getTimeDistribution(blocks: TimeBlock[]): DashboardTimeCategory[] {
-  const grouped = blocks.reduce<Record<string, number>>((acc, block) => {
+function minutesByCategory(blocks: TimeBlock[]): Record<string, number> {
+  return blocks.reduce<Record<string, number>>((acc, block) => {
     acc[block.category] = (acc[block.category] ?? 0) + Number(block.duration_minutes ?? 0);
     return acc;
   }, {});
+}
 
+function getTimeDistribution(grouped: Record<string, number>): DashboardTimeCategory[] {
   return Object.entries(grouped)
     .filter(([, minutes]) => minutes > 0)
     .map(([category, minutes]) => ({

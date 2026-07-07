@@ -31,33 +31,25 @@ export function LiveDateTime({ timezone }: LiveDateTimeProps) {
     };
   }, [resolvedTimezone]);
 
-  const label = useMemo(() => {
-    if (!now) return "Synchronizing cockpit time";
+  // The formatter only depends on the timezone; rebuilding it on every
+  // minute tick (`now` change) would pay Intl construction cost each time.
+  const formatter = useMemo(() => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    };
 
     try {
-      return new Intl.DateTimeFormat("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        timeZone: resolvedTimezone,
-      })
-        .format(now)
-        .replace(" at ", " · ");
+      return new Intl.DateTimeFormat("en-US", { ...options, timeZone: resolvedTimezone });
     } catch {
-      return new Intl.DateTimeFormat("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        timeZone: DEFAULT_TIMEZONE,
-      })
-        .format(now)
-        .replace(" at ", " · ");
+      return new Intl.DateTimeFormat("en-US", { ...options, timeZone: DEFAULT_TIMEZONE });
     }
-  }, [now, resolvedTimezone]);
+  }, [resolvedTimezone]);
+
+  const label = now ? formatter.format(now).replace(" at ", " · ") : "Synchronizing cockpit time";
 
   return (
     <div className="flex min-w-0 items-center gap-2 text-sm text-slate-400">
