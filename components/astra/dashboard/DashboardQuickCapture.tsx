@@ -253,7 +253,7 @@ export function DashboardQuickCapture() {
         supabase.from("water_logs").insert({
           user_id: userId,
           amount_ml: amountMl,
-          logged_at: getString(payload, "logged_at") ?? new Date().toISOString(),
+          logged_at: getTimestamp(payload, "logged_at") ?? new Date().toISOString(),
         }),
       );
       return;
@@ -269,7 +269,7 @@ export function DashboardQuickCapture() {
           protein_g: getNumberOrNull(payload, "protein_g"),
           carbs_g: getNumberOrNull(payload, "carbs_g"),
           fat_g: getNumberOrNull(payload, "fat_g"),
-          logged_at: getString(payload, "logged_at") ?? new Date().toISOString(),
+          logged_at: getTimestamp(payload, "logged_at") ?? new Date().toISOString(),
           notes: getStringOrNull(payload, "notes"),
         }),
       );
@@ -284,7 +284,7 @@ export function DashboardQuickCapture() {
           title: getString(payload, "title") ?? result.summary,
           duration_minutes: getNumberOrNull(payload, "duration_minutes"),
           intensity: getOptionalOneOf(payload, "intensity", intensities),
-          logged_at: getString(payload, "logged_at") ?? new Date().toISOString(),
+          logged_at: getTimestamp(payload, "logged_at") ?? new Date().toISOString(),
           notes: getStringOrNull(payload, "notes"),
         }),
       );
@@ -298,7 +298,7 @@ export function DashboardQuickCapture() {
           book_title: getStringOrNull(payload, "book_title"),
           pages_read: getNumberOrNull(payload, "pages_read"),
           minutes_read: getNumberOrNull(payload, "minutes_read"),
-          logged_at: getString(payload, "logged_at") ?? new Date().toISOString(),
+          logged_at: getTimestamp(payload, "logged_at") ?? new Date().toISOString(),
           notes: getStringOrNull(payload, "notes"),
         }),
       );
@@ -313,7 +313,7 @@ export function DashboardQuickCapture() {
           user_id: userId,
           prayer_name: prayerName,
           completed: getBoolean(payload, "completed", true),
-          logged_at: getString(payload, "logged_at") ?? new Date().toISOString(),
+          logged_at: getTimestamp(payload, "logged_at") ?? new Date().toISOString(),
           notes: getStringOrNull(payload, "notes"),
         }),
       );
@@ -328,7 +328,7 @@ export function DashboardQuickCapture() {
           user_id: userId,
           duration_minutes: durationMinutes,
           technique: getStringOrNull(payload, "technique"),
-          logged_at: getString(payload, "logged_at") ?? new Date().toISOString(),
+          logged_at: getTimestamp(payload, "logged_at") ?? new Date().toISOString(),
           notes: getStringOrNull(payload, "notes"),
         }),
       );
@@ -342,8 +342,8 @@ export function DashboardQuickCapture() {
           category: getOneOf(payload, "category", timeCategories, "other"),
           title: getString(payload, "title") ?? result.summary,
           duration_minutes: getNumberOrNull(payload, "duration_minutes"),
-          start_time: getString(payload, "start_time") ?? new Date().toISOString(),
-          end_time: getStringOrNull(payload, "end_time"),
+          start_time: getTimestamp(payload, "start_time") ?? new Date().toISOString(),
+          end_time: getTimestamp(payload, "end_time"),
           quality_score: getNumberOrNull(payload, "quality_score"),
           notes: getStringOrNull(payload, "notes"),
         }),
@@ -360,7 +360,7 @@ export function DashboardQuickCapture() {
           category: getOneOf(payload, "category", taskCategories, "personal"),
           priority: getOneOf(payload, "priority", taskPriorities, "medium"),
           status: "open",
-          due_at: getStringOrNull(payload, "due_at"),
+          due_at: getTimestamp(payload, "due_at"),
         }),
       );
       return;
@@ -506,6 +506,17 @@ function getString(payload: Record<string, unknown>, key: string) {
 
 function getStringOrNull(payload: Record<string, unknown>, key: string) {
   return getString(payload, key);
+}
+
+// AI-provided timestamps arrive in whatever "ISO-ish" shape the model chose
+// (offsets, missing Z, no milliseconds). SQLite compares strings, so anything
+// not normalized to toISOString() format would silently fall out of every
+// date-range query. Unparseable values become null so callers use their fallback.
+function getTimestamp(payload: Record<string, unknown>, key: string) {
+  const raw = getString(payload, key);
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 }
 
 function getNumber(payload: Record<string, unknown>, key: string) {

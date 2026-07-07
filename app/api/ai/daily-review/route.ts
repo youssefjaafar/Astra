@@ -7,6 +7,7 @@ import { fetchReviewSignals } from "@/lib/reviews/server";
 import { createServerDbClient } from "@/lib/db/server";
 import { aiDailySummarySchema, dailyReviewAiRequestSchema } from "@/lib/validations/reviews";
 import { getDailySignalSummary, getDayRange } from "@/components/astra/reviews/review-utils";
+import { resolveTimeZone } from "@/lib/dates";
 
 export async function POST(request: Request) {
   try {
@@ -21,7 +22,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 });
     }
 
-    const { start, end } = getDayRange(body.reviewDate);
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("timezone")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const timeZone = resolveTimeZone(profile?.timezone);
+
+    const { start, end } = getDayRange(body.reviewDate, timeZone);
     const { signals, error: signalError } = await fetchReviewSignals(supabase, user.id, {
       start,
       endExclusive: end,
@@ -42,7 +50,7 @@ export async function POST(request: Request) {
       messages: buildDailyReviewMessages({
         reviewDate: body.reviewDate,
         writtenReflection: review,
-        lifeSignals: getDailySignalSummary(signals, body.reviewDate),
+        lifeSignals: getDailySignalSummary(signals, body.reviewDate, timeZone),
       }),
       temperature: 0.2,
     });

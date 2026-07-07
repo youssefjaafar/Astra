@@ -1,3 +1,4 @@
+import { addDaysInTimeZone, midnightInTimeZone } from "@/lib/dates";
 import type { Database } from "@/lib/types/database";
 
 export type DailyReview = Database["public"]["Tables"]["daily_reviews"]["Row"];
@@ -28,18 +29,44 @@ export function todayDateString() {
   return toDateString(new Date());
 }
 
+// Local calendar date, NOT toISOString().slice(0,10): the ISO slice returns
+// the UTC date, which is yesterday for evening users in UTC-negative zones
+// and tomorrow for late-night users in UTC-positive zones.
 export function toDateString(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
 }
 
-export function getDayRange(dateString: string) {
+/** Pure calendar-date arithmetic on a "YYYY-MM-DD" string; no timezone involved. */
+export function addDaysToDateString(dateString: string, days: number) {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10);
+}
+
+// Range helpers interpret the date string in the runtime's local timezone by
+// default (correct in the browser, where local time IS the user's time). On
+// the server, pass the profile timezone so boundaries match the user's day.
+export function getDayRange(dateString: string, timeZone?: string) {
+  if (timeZone) {
+    const start = midnightInTimeZone(dateString, timeZone);
+    return { start, end: addDaysInTimeZone(start, 1, timeZone) };
+  }
   const start = new Date(`${dateString}T00:00:00`);
   const end = new Date(start);
   end.setDate(start.getDate() + 1);
   return { start, end };
 }
 
-export function getWeekRange(weekStart: string) {
+export function getWeekRange(weekStart: string, timeZone?: string) {
+  if (timeZone) {
+    const start = midnightInTimeZone(weekStart, timeZone);
+    return {
+      start,
+      end: addDaysInTimeZone(start, 6, timeZone),
+      endExclusive: addDaysInTimeZone(start, 7, timeZone),
+    };
+  }
   const start = new Date(`${weekStart}T00:00:00`);
   const end = new Date(start);
   end.setDate(start.getDate() + 6);
@@ -53,8 +80,8 @@ export function getWeekStart(date = new Date()) {
   return toDateString(start);
 }
 
-export function filterSignalsForDay(signals: ReviewSignals, dateString: string) {
-  const { start, end } = getDayRange(dateString);
+export function filterSignalsForDay(signals: ReviewSignals, dateString: string, timeZone?: string) {
+  const { start, end } = getDayRange(dateString, timeZone);
 
   return {
     tasks: signals.tasks.filter((task) => task.completed_at && inRange(task.completed_at, start, end)),
@@ -69,8 +96,8 @@ export function filterSignalsForDay(signals: ReviewSignals, dateString: string) 
   };
 }
 
-export function getDailySignalSummary(signals: ReviewSignals, dateString: string) {
-  const day = filterSignalsForDay(signals, dateString);
+export function getDailySignalSummary(signals: ReviewSignals, dateString: string, timeZone?: string) {
+  const day = filterSignalsForDay(signals, dateString, timeZone);
   const totalTrackedMinutes = day.timeBlocks.reduce((sum, block) => sum + Number(block.duration_minutes ?? 0), 0);
   const deepWorkMinutes = day.timeBlocks
     .filter((block) => block.category === "deep_work")
@@ -99,17 +126,15 @@ export function getDailySignalSummary(signals: ReviewSignals, dateString: string
   };
 }
 
+// review_date comparisons are pure calendar-date string matches, so the week's
+// day strings come from string arithmetic — no timezone conversions involved.
 export function getScoreChartData(reviews: DailyReview[], weekStart: string) {
-  const { start } = getWeekRange(weekStart);
-
   return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(start);
-    date.setDate(start.getDate() + index);
-    const dateString = toDateString(date);
+    const dateString = addDaysToDateString(weekStart, index);
     const review = reviews.find((item) => item.review_date === dateString);
 
     return {
-      day: new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date),
+      day: weekdayLabel(dateString),
       mood: review?.mood_score ?? null,
       energy: review?.energy_score ?? null,
       focus: review?.focus_score ?? null,
@@ -117,8 +142,8 @@ export function getScoreChartData(reviews: DailyReview[], weekStart: string) {
   });
 }
 
-export function getWeeklyTimeDistribution(signals: ReviewSignals, weekStart: string) {
-  const { start, endExclusive } = getWeekRange(weekStart);
+export function getWeeklyTimeDistribution(signals: ReviewSignals, weekStart: string, timeZone?: string) {
+  const { start, endExclusive } = getWeekRange(weekStart, timeZone);
   const blocks = signals.timeBlocks.filter((block) => inRange(block.start_time, start, endExclusive));
   const grouped = blocks.reduce<Record<string, number>>((acc, block) => {
     acc[block.category] = (acc[block.category] ?? 0) + Number(block.duration_minutes ?? 0);
@@ -128,34 +153,32 @@ export function getWeeklyTimeDistribution(signals: ReviewSignals, weekStart: str
   return Object.entries(grouped).map(([category, minutes]) => ({ category, minutes }));
 }
 
-export function getWeeklyTrainingData(signals: ReviewSignals, weekStart: string) {
-  const { start } = getWeekRange(weekStart);
-
+export function getWeeklyTrainingData(signals: ReviewSignals, weekStart: string, timeZone?: string) {
   return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(start);
-    date.setDate(start.getDate() + index);
-    const dateString = toDateString(date);
-    const dayWorkouts = filterSignalsForDay(signals, dateString).workouts;
+    const dateString = addDaysToDateString(weekStart, index);
+    const dayWorkouts = filterSignalsForDay(signals, dateString, timeZone).workouts;
     return {
-      day: new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date),
+      day: weekdayLabel(dateString),
       minutes: dayWorkouts.reduce((sum, workout) => sum + Number(workout.duration_minutes ?? 0), 0),
     };
   });
 }
 
-export function getWeeklyHabitCompletionData(signals: ReviewSignals, weekStart: string) {
-  const { start } = getWeekRange(weekStart);
-
+export function getWeeklyHabitCompletionData(signals: ReviewSignals, weekStart: string, timeZone?: string) {
   return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(start);
-    date.setDate(start.getDate() + index);
-    const dateString = toDateString(date);
-    const day = filterSignalsForDay(signals, dateString);
+    const dateString = addDaysToDateString(weekStart, index);
+    const day = filterSignalsForDay(signals, dateString, timeZone);
     return {
-      day: new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date),
+      day: weekdayLabel(dateString),
       completions: day.habitLogs.length + day.prayerLogs.filter((log) => log.completed).length,
     };
   });
+}
+
+function weekdayLabel(dateString: string) {
+  return new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "UTC" }).format(
+    new Date(`${dateString}T00:00:00Z`),
+  );
 }
 
 export function formatMinutes(minutes: number) {

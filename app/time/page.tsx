@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { TimeOrbitModule } from "@/components/astra/time";
+import { resolveTimeZone, startOfDayInTimeZone } from "@/lib/dates";
 import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +14,8 @@ export default async function TimePage() {
 
   if (!user) redirect("/login");
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const profileResult = await supabase.from("profiles").select("timezone").eq("user_id", user.id).maybeSingle();
+  const todayStart = startOfDayInTimeZone(new Date(), resolveTimeZone(profileResult.data?.timezone));
 
   const { data, error } = await supabase
     .from("time_blocks")

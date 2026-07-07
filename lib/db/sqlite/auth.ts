@@ -8,10 +8,15 @@ import type { DbUser } from "@/lib/db/types";
 export const SESSION_COOKIE = "astra_session";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
+// Self-hosted SQLite deployments are often served over plain HTTP on a LAN;
+// a blanket `secure: true` in production would make the browser drop the
+// cookie and sign-in would silently loop. Derive it from the app URL instead.
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+
 export const sessionCookieOptions = {
   httpOnly: true,
   sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
+  secure: appUrl ? appUrl.startsWith("https://") : process.env.NODE_ENV === "production",
   path: "/",
   maxAge: SESSION_TTL_MS / 1000,
 };
@@ -70,9 +75,17 @@ export function createLocalUser(
     created_at: new Date().toISOString(),
   };
 
-  db.prepare(
-    "INSERT INTO auth_users (id, email, password_hash, display_name, created_at) VALUES (?, ?, ?, ?, ?)",
-  ).run(row.id, row.email, row.password_hash, row.display_name, row.created_at);
+  try {
+    db.prepare(
+      "INSERT INTO auth_users (id, email, password_hash, display_name, created_at) VALUES (?, ?, ?, ?, ?)",
+    ).run(row.id, row.email, row.password_hash, row.display_name, row.created_at);
+  } catch (error) {
+    // Two concurrent signups can both pass the SELECT check above.
+    if (error instanceof Error && error.message.includes("UNIQUE constraint failed")) {
+      return { error: "User already registered" };
+    }
+    throw error;
+  }
 
   ensureLocalProfile(row.id, row.display_name ?? normalizedEmail.split("@")[0]);
 

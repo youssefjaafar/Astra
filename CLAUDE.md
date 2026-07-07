@@ -10,6 +10,7 @@ Stack: Next.js 15 App Router, React 19, TypeScript (strict), better-sqlite3 (def
 - `npm run typecheck` — `tsc --noEmit`; **`npm run test` is an alias for this** — there is no unit test framework
 - `npm run lint` — ESLint (`next/core-web-vitals` + `next/typescript`)
 - `npm run build` — production build
+- `npm run db:user -- create|reset-password <email> <password>` — manage local SQLite users (the only password-reset path in SQLite mode; also seeds the E2E user).
 - `npm run test:e2e` — Playwright. **Self-skips unless `ASTRA_TEST_EMAIL` and `ASTRA_TEST_PASSWORD` are set** (needs a seeded live Supabase user). Auto-starts its own dev server on port 3100 (`ASTRA_E2E_PORT` to change, `ASTRA_BASE_URL` to target an existing server). A "passing" run with creds unset ran zero tests.
 
 ## Layout

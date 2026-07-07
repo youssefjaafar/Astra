@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { HabitsModule } from "@/components/astra/habits";
+import { addDaysInTimeZone, resolveTimeZone, startOfDayInTimeZone } from "@/lib/dates";
 import { createServerDbClient } from "@/lib/db/server";
 
 export const dynamic = "force-dynamic";
@@ -13,11 +14,10 @@ export default async function HabitsPage() {
 
   if (!user) redirect("/login");
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
-  const sevenDaysAgo = new Date(todayStart);
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const profileResult = await supabase.from("profiles").select("timezone").eq("user_id", user.id).maybeSingle();
+  const timeZone = resolveTimeZone(profileResult.data?.timezone);
+  const todayStart = startOfDayInTimeZone(new Date(), timeZone);
+  const sevenDaysAgo = addDaysInTimeZone(todayStart, -6, timeZone);
 
   const [habitsResult, habitLogsResult, prayerLogsResult] = await Promise.all([
     supabase.from("habits").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),

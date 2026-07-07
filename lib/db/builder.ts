@@ -12,6 +12,8 @@ import type {
  * decides how to run it (direct SQLite on the server, HTTP from the browser).
  */
 class QueryBuilder {
+  private execution?: Promise<DbExecuteResult>;
+
   constructor(
     private readonly executor: DbExecutor,
     private readonly op: DbOperation,
@@ -86,7 +88,9 @@ class QueryBuilder {
     onfulfilled?: ((value: DbExecuteResult) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ): Promise<TResult1 | TResult2> {
-    return this.executor(this.op).then(onfulfilled, onrejected);
+    // Memoized so awaiting the same builder twice never re-runs the operation.
+    this.execution ??= this.executor(this.op);
+    return this.execution.then(onfulfilled, onrejected);
   }
 
   private filter(op: DbOperation["filters"][number]["op"], column: string, value: unknown) {

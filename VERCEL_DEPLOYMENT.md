@@ -1,5 +1,11 @@
 # Vercel Deployment
 
+> **⚠️ Database provider requirement**
+>
+> Vercel's filesystem is ephemeral — the local SQLite provider **cannot run there** (every instance would get its own throwaway database and all data would be lost on redeploy). The app refuses to start SQLite on serverless hosts for this reason.
+>
+> For Vercel you must use the Supabase provider: set `NEXT_PUBLIC_ASTRA_DB_PROVIDER=supabase` together with the Supabase env vars below. SQLite mode is for local use and self-hosting on machines with a persistent disk.
+
 ## 1. Connect Repository
 
 1. Push the Astra repository to GitHub.
@@ -20,6 +26,7 @@ Set these in Vercel Project Settings:
 
 ```bash
 NEXT_PUBLIC_APP_URL=https://<your-production-domain>
+NEXT_PUBLIC_ASTRA_DB_PROVIDER=supabase
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=

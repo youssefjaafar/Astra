@@ -7,6 +7,7 @@ import { fetchReviewSignals } from "@/lib/reviews/server";
 import { createServerDbClient } from "@/lib/db/server";
 import { aiWeeklyReportSchema, weeklyReportAiRequestSchema } from "@/lib/validations/reviews";
 import {
+  addDaysToDateString,
   filterSignalsForDay,
   getDailySignalSummary,
   getScoreChartData,
@@ -14,8 +15,8 @@ import {
   getWeeklyHabitCompletionData,
   getWeeklyTimeDistribution,
   getWeeklyTrainingData,
-  toDateString,
 } from "@/components/astra/reviews/review-utils";
+import { resolveTimeZone } from "@/lib/dates";
 
 export async function POST(request: Request) {
   try {
@@ -30,7 +31,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 });
     }
 
-    const { start, end, endExclusive } = getWeekRange(body.weekStart);
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("timezone")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const timeZone = resolveTimeZone(profile?.timezone);
+
+    const { start, endExclusive } = getWeekRange(body.weekStart, timeZone);
+    const weekEnd = addDaysToDateString(body.weekStart, 6);
     const { signals, error: signalError } = await fetchReviewSignals(supabase, user.id, {
       start,
       endExclusive,
@@ -45,7 +54,7 @@ export async function POST(request: Request) {
       .select("*")
       .eq("user_id", user.id)
       .gte("review_date", body.weekStart)
-      .lte("review_date", toDateString(end))
+      .lte("review_date", weekEnd)
       .order("review_date", { ascending: true });
 
     if (reviewsError) {
@@ -53,28 +62,26 @@ export async function POST(request: Request) {
     }
 
     const dailySignals = Array.from({ length: 7 }, (_, index) => {
-      const date = new Date(start);
-      date.setDate(start.getDate() + index);
-      const dateString = toDateString(date);
+      const dateString = addDaysToDateString(body.weekStart, index);
 
       return {
         date: dateString,
-        summary: getDailySignalSummary(signals, dateString),
-        rawSignalCounts: countDaySignals(signals, dateString),
+        summary: getDailySignalSummary(signals, dateString, timeZone),
+        rawSignalCounts: countDaySignals(signals, dateString, timeZone),
       };
     });
 
     const aiResponse = await generateJsonCompletion({
       messages: buildWeeklyReportMessages({
         weekStart: body.weekStart,
-        weekEnd: toDateString(end),
+        weekEnd,
         dailyReviews,
         dailySignals,
         charts: {
           moodEnergyFocus: getScoreChartData(dailyReviews ?? [], body.weekStart),
-          timeDistribution: getWeeklyTimeDistribution(signals, body.weekStart),
-          habitCompletion: getWeeklyHabitCompletionData(signals, body.weekStart),
-          trainingMinutes: getWeeklyTrainingData(signals, body.weekStart),
+          timeDistribution: getWeeklyTimeDistribution(signals, body.weekStart, timeZone),
+          habitCompletion: getWeeklyHabitCompletionData(signals, body.weekStart, timeZone),
+          trainingMinutes: getWeeklyTrainingData(signals, body.weekStart, timeZone),
         },
       }),
       temperature: 0.2,
@@ -88,7 +95,7 @@ export async function POST(request: Request) {
         {
           user_id: user.id,
           week_start: body.weekStart,
-          week_end: toDateString(end),
+          week_end: weekEnd,
           summary: parsed.weekly_summary,
           wins: parsed.wins.join("\n"),
           struggles: parsed.struggles.join("\n"),
@@ -133,8 +140,12 @@ export async function POST(request: Request) {
   }
 }
 
-function countDaySignals(signals: Parameters<typeof filterSignalsForDay>[0], dateString: string) {
-  const day = filterSignalsForDay(signals, dateString);
+function countDaySignals(
+  signals: Parameters<typeof filterSignalsForDay>[0],
+  dateString: string,
+  timeZone?: string,
+) {
+  const day = filterSignalsForDay(signals, dateString, timeZone);
 
   return {
     tasks: day.tasks.length,

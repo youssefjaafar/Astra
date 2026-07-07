@@ -1,20 +1,25 @@
 import "server-only";
 
+import {
+  addDaysInTimeZone,
+  resolveTimeZone,
+  startOfDayInTimeZone,
+  startOfWeekInTimeZone,
+} from "@/lib/dates";
 import type { createServerDbClient } from "@/lib/db/server";
 import type { CopilotContextSummary } from "@/components/astra/ai/ai-utils";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createServerDbClient>>;
 
 export async function fetchCopilotContext(supabase: SupabaseServerClient, userId: string) {
+  const profileResult = await supabase.from("profiles").select("timezone").eq("user_id", userId).maybeSingle();
+  const timeZone = resolveTimeZone(profileResult.data?.timezone);
+
   const now = new Date();
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
-  const tomorrowStart = new Date(todayStart);
-  tomorrowStart.setDate(todayStart.getDate() + 1);
-  const weekStart = new Date(todayStart);
-  weekStart.setDate(todayStart.getDate() - todayStart.getDay());
-  const recentStart = new Date(todayStart);
-  recentStart.setDate(todayStart.getDate() - 13);
+  const todayStart = startOfDayInTimeZone(now, timeZone);
+  const tomorrowStart = addDaysInTimeZone(todayStart, 1, timeZone);
+  const weekStart = startOfWeekInTimeZone(now, timeZone);
+  const recentStart = addDaysInTimeZone(todayStart, -13, timeZone);
 
   const [
     tasksResult,

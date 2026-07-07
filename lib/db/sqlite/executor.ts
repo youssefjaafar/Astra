@@ -84,10 +84,14 @@ function runInsert(op: DbOperation, meta: TableMeta, userId: string): DbExecuteR
   const db = getSqliteDb();
   const inserted: Record<string, unknown>[] = [];
 
-  for (const row of rows) {
-    const columns = Object.keys(row).filter(
-      (column) => row[column] !== undefined && column in meta.columns,
-    );
+  // db.transaction keeps multi-row inserts atomic: any constraint failure
+  // rolls back the earlier rows instead of leaving a partial batch.
+  const insertRow = (row: Record<string, unknown>) => {
+    const columns = Object.keys(row).filter((column) => {
+      if (row[column] === undefined) return false;
+      assertKnownColumn(column, meta, op.table);
+      return true;
+    });
     const placeholders = columns.map(() => "?").join(", ");
     const values = columns.map((column) => toDbValue(row[column], meta.columns[column]));
 
@@ -115,7 +119,11 @@ function runInsert(op: DbOperation, meta: TableMeta, userId: string): DbExecuteR
     const sql = `INSERT INTO "${op.table}" (${columns.map((c) => `"${c}"`).join(", ")}) VALUES (${placeholders})${conflictSql} RETURNING *`;
     const result = db.prepare(sql).all(...values) as Record<string, unknown>[];
     inserted.push(...result);
-  }
+  };
+
+  db.transaction(() => {
+    rows.forEach(insertRow);
+  })();
 
   if (!op.returning) return { data: null, error: null };
 
@@ -128,11 +136,16 @@ function runUpdate(op: DbOperation, meta: TableMeta, userId: string): DbExecuteR
     values.updated_at = new Date().toISOString();
   }
 
-  const columns = Object.keys(values).filter(
-    (column) => values[column] !== undefined && column in meta.columns && column !== "user_id",
-  );
+  const columns = Object.keys(values).filter((column) => {
+    if (values[column] === undefined) return false;
+    assertKnownColumn(column, meta, op.table);
+    // user_id is owned by the session (the RLS equivalent) — never client-settable.
+    return column !== "user_id";
+  });
 
-  if (columns.length === 0) return { data: op.returning ? [] : null, error: null };
+  if (columns.length === 0) {
+    return op.returning ? shapeRows([], op) : { data: null, error: null };
+  }
 
   const setSql = columns.map((column) => `"${column}" = ?`).join(", ");
   const setParams = columns.map((column) => toDbValue(values[column], meta.columns[column]));
@@ -218,12 +231,17 @@ function shapeRows(rows: Record<string, unknown>[], op: DbOperation): DbExecuteR
   return { data: rows, error: null };
 }
 
-function quoteColumn(column: string, meta: TableMeta, table: string): string {
+function assertKnownColumn(column: string, meta: TableMeta, table: string): void {
   if (!(column in meta.columns)) {
+    // Same code Postgres uses; silently dropping the column would lose data.
     throw Object.assign(new Error(`column "${column}" of relation "${table}" does not exist`), {
       dbCode: "42703",
     });
   }
+}
+
+function quoteColumn(column: string, meta: TableMeta, table: string): string {
+  assertKnownColumn(column, meta, table);
   return `"${column}"`;
 }
 

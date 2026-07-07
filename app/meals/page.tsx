@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { MealsModule } from "@/components/astra/meals";
+import { resolveTimeZone, startOfDayInTimeZone } from "@/lib/dates";
 import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
 import { createServerDbClient } from "@/lib/db/server";
 
@@ -16,8 +17,8 @@ export default async function MealsPage() {
 
   if (!user) redirect("/login");
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const profileResult = await supabase.from("profiles").select("timezone").eq("user_id", user.id).maybeSingle();
+  const todayStart = startOfDayInTimeZone(new Date(), resolveTimeZone(profileResult.data?.timezone));
 
   const [mealsResult, waterResult, preferencesResult] = await Promise.all([
     supabase

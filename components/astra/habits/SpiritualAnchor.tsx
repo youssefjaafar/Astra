@@ -24,7 +24,10 @@ export function SpiritualAnchor({ userId, initialPrayerLogs, onError }: Spiritua
   const [savingPrayer, setSavingPrayer] = useState<string | null>(null);
 
   const latestByPrayer = useMemo(() => {
+    // Only today's logs count as toggleable state; older rows are history and
+    // must never be rewritten (e.g. a tab left open past midnight).
     return logs.reduce<Record<string, PrayerLog>>((acc, log) => {
+      if (!isToday(log.logged_at)) return acc;
       const existing = acc[log.prayer_name];
       if (!existing || new Date(log.logged_at ?? 0) > new Date(existing.logged_at ?? 0)) {
         acc[log.prayer_name] = log;
@@ -43,7 +46,7 @@ export function SpiritualAnchor({ userId, initialPrayerLogs, onError }: Spiritua
     if (existing) {
       const { data, error } = await supabase
         .from("prayer_logs")
-        .update({ completed: nextCompleted, logged_at: new Date().toISOString() })
+        .update({ completed: nextCompleted })
         .eq("id", existing.id)
         .eq("user_id", userId)
         .select("*")
@@ -113,5 +116,16 @@ export function SpiritualAnchor({ userId, initialPrayerLogs, onError }: Spiritua
       </div>
       <p className="mt-4 text-sm text-slate-400">Return to the anchor gently. Every completed signal is useful data.</p>
     </GlassCard>
+  );
+}
+
+function isToday(value: string | null) {
+  if (!value) return false;
+  const date = new Date(value);
+  const now = new Date();
+  return (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
   );
 }

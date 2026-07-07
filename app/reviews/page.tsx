@@ -1,7 +1,14 @@
 import { redirect } from "next/navigation";
 
 import { ReviewsModule } from "@/components/astra/reviews";
-import { getWeekRange, getWeekStart, todayDateString } from "@/components/astra/reviews/review-utils";
+import { getWeekRange } from "@/components/astra/reviews/review-utils";
+import {
+  addDaysInTimeZone,
+  dateStringInTimeZone,
+  resolveTimeZone,
+  startOfDayInTimeZone,
+  startOfWeekInTimeZone,
+} from "@/lib/dates";
 import { fetchReviewSignals } from "@/lib/reviews/server";
 import { getDatabaseSetupMessage, isMissingTableError } from "@/lib/supabase/errors";
 import { createServerDbClient } from "@/lib/db/server";
@@ -16,11 +23,12 @@ export default async function ReviewsPage() {
 
   if (!user) redirect("/login");
 
-  const today = todayDateString();
-  const currentWeek = getWeekStart();
-  const { endExclusive } = getWeekRange(currentWeek);
-  const signalStart = new Date(`${today}T00:00:00`);
-  signalStart.setDate(signalStart.getDate() - 70);
+  const profileResult = await supabase.from("profiles").select("timezone").eq("user_id", user.id).maybeSingle();
+  const timeZone = resolveTimeZone(profileResult.data?.timezone);
+  const now = new Date();
+  const currentWeek = dateStringInTimeZone(startOfWeekInTimeZone(now, timeZone), timeZone);
+  const { endExclusive } = getWeekRange(currentWeek, timeZone);
+  const signalStart = addDaysInTimeZone(startOfDayInTimeZone(now, timeZone), -70, timeZone);
 
   const [dailyReviewsResult, weeklyReviewsResult, signalsResult] = await Promise.all([
     supabase.from("daily_reviews").select("*").eq("user_id", user.id).order("review_date", { ascending: false }),

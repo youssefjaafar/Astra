@@ -1,5 +1,12 @@
 import "server-only";
 
+import {
+  addDaysInTimeZone,
+  dateStringInTimeZone,
+  resolveTimeZone,
+  startOfDayInTimeZone,
+  startOfWeekInTimeZone,
+} from "@/lib/dates";
 import type {
   DashboardCopilotInsight,
   DashboardMission,
@@ -57,15 +64,18 @@ const colors: Record<string, string> = {
 };
 
 export async function getDashboardData(supabase: SupabaseServerClient, userId: string, email: string | null): Promise<DashboardData> {
+  // Profile first: its timezone defines where "today" and "this week" start.
+  const profileResult = await supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle();
+  const timeZone = resolveTimeZone(profileResult.data?.timezone);
+
   const now = new Date();
-  const todayStart = startOfDay(now);
-  const tomorrowStart = addDays(todayStart, 1);
-  const weekStart = startOfWeek(now);
-  const nextWeekStart = addDays(weekStart, 7);
-  const todayDate = toDateString(todayStart);
+  const todayStart = startOfDayInTimeZone(now, timeZone);
+  const tomorrowStart = addDaysInTimeZone(todayStart, 1, timeZone);
+  const weekStart = startOfWeekInTimeZone(now, timeZone);
+  const nextWeekStart = addDaysInTimeZone(weekStart, 7, timeZone);
+  const todayDate = dateStringInTimeZone(now, timeZone);
 
   const [
-    profileResult,
     preferencesResult,
     tasksResult,
     todayTimeResult,
@@ -82,7 +92,6 @@ export async function getDashboardData(supabase: SupabaseServerClient, userId: s
     dailyReviewResult,
     insightResult,
   ] = await Promise.all([
-    supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
     supabase.from("user_preferences").select("*").eq("user_id", userId).maybeSingle(),
     supabase
       .from("tasks")
@@ -425,10 +434,13 @@ function getWeeklySnapshot({
   const meditationMinutes = weekMeditation.reduce((sum, log) => sum + Number(log.duration_minutes ?? 0), 0);
   const prayerCompletion = weekPrayer.filter((log) => log.completed).length;
   const distractionMinutes = sumMinutes(weekTimeBlocks.filter((block) => block.category === "scrolling" || block.category === "social"));
-  const hydrationAverage = Math.round(weekWater.reduce((sum, log) => sum + log.amount_ml, 0) / 7);
+  // Average over days elapsed so far this week, not a flat 7 — otherwise the
+  // early-week average is misleadingly low.
+  const daysElapsed = Math.min(7, Math.max(1, Math.ceil((Date.now() - weekStart.getTime()) / 86_400_000)));
+  const hydrationAverage = Math.round(weekWater.reduce((sum, log) => sum + log.amount_ml, 0) / daysElapsed);
 
   return {
-    taskCompletion: `${completedTasks}/${weeklyTasks.length || 0}`,
+    taskCompletion: `${completedTasks}/${weeklyTasks.length}`,
     habitLogs: `${weekHabitLogs.length} logs`,
     trainingSessions: `${weekWorkouts.length}/${preferences?.workout_target_weekly ?? 3}`,
     readingMinutes: formatMinutes(readingMinutes),
@@ -471,32 +483,10 @@ function uniqueByTitle(tasks: Task[]) {
   });
 }
 
-function startOfDay(date: Date) {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  return start;
-}
-
-function startOfWeek(date: Date) {
-  const start = startOfDay(date);
-  start.setDate(start.getDate() - start.getDay());
-  return start;
-}
-
-function addDays(date: Date, days: number) {
-  const next = new Date(date);
-  next.setDate(date.getDate() + days);
-  return next;
-}
-
 function inRange(value: string | null, start: Date, end: Date) {
   if (!value) return false;
   const time = new Date(value).getTime();
   return time >= start.getTime() && time < end.getTime();
-}
-
-function toDateString(date: Date) {
-  return date.toISOString().slice(0, 10);
 }
 
 function progress(current: number, target: number) {
