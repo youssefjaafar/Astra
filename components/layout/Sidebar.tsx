@@ -14,6 +14,7 @@ import {
   Utensils,
 } from "lucide-react";
 
+import { NavPendingSpinner } from "@/components/layout/NavPendingSpinner";
 import { navItems } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
@@ -63,10 +64,11 @@ export function Sidebar() {
                 prefetch
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                <span className="min-w-0">
+                <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{item.label}</span>
                   <span className="block truncate text-xs text-slate-600">{item.description}</span>
                 </span>
+                <NavPendingSpinner />
               </Link>
             );
           })}

@@ -21,6 +21,13 @@ const authRoutes = ["/login", "/signup"];
 
 const SESSION_COOKIE = "astra_session";
 
+// Short-lived cache of verified sessions so rapid navigation doesn't pay the
+// /api/auth/session round-trip on every click. Only fully-onboarded sessions
+// are cached: `user: null` and `onboarded: false` must stay uncached so
+// sign-in and onboarding completion take effect immediately.
+const SESSION_CACHE_TTL_MS = 30_000;
+const sessionCache = new Map<string, { user: unknown; onboarded: boolean; expires: number }>();
+
 export async function middleware(request: NextRequest) {
   if (getDbProvider() === "sqlite") {
     return sqliteMiddleware(request);
@@ -55,20 +62,44 @@ async function sqliteMiddleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Every visible nav link fires a prefetch; don't pay a session round-trip
+  // for each. The real navigation re-runs middleware without the prefetch
+  // header, and pages verify auth themselves regardless.
+  const isPrefetch =
+    request.headers.get("next-router-prefetch") === "1" ||
+    request.headers.get("purpose") === "prefetch" ||
+    request.headers.get("x-purpose") === "prefetch";
+
+  if (isPrefetch && (isProtectedRoute || isOnboardingRoute)) {
+    return NextResponse.next();
+  }
+
   let user: unknown = null;
   let onboarded = false;
 
-  try {
-    const sessionResponse = await fetch(new URL("/api/auth/session", request.url), {
-      headers: { cookie: request.headers.get("cookie") ?? "" },
-    });
-    const session = (await sessionResponse.json()) as { user: unknown; onboarded: boolean };
-    user = session.user;
-    onboarded = session.onboarded;
-  } catch {
-    // If the app itself is unreachable something bigger is wrong; let the
-    // request through so the page-level auth check handles it.
-    return NextResponse.next();
+  const cached = sessionCache.get(sessionToken);
+
+  if (cached && cached.expires > Date.now()) {
+    user = cached.user;
+    onboarded = cached.onboarded;
+  } else {
+    try {
+      const sessionResponse = await fetch(new URL("/api/auth/session", request.url), {
+        headers: { cookie: request.headers.get("cookie") ?? "" },
+      });
+      const session = (await sessionResponse.json()) as { user: unknown; onboarded: boolean };
+      user = session.user;
+      onboarded = session.onboarded;
+    } catch {
+      // If the app itself is unreachable something bigger is wrong; let the
+      // request through so the page-level auth check handles it.
+      return NextResponse.next();
+    }
+
+    if (user && onboarded) {
+      if (sessionCache.size > 100) sessionCache.clear();
+      sessionCache.set(sessionToken, { user, onboarded, expires: Date.now() + SESSION_CACHE_TTL_MS });
+    }
   }
 
   if (!user && (isProtectedRoute || isOnboardingRoute)) {

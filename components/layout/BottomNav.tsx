@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Activity, Brain, Dumbbell, Home, ListChecks, Moon, Orbit, Settings, Utensils } from "lucide-react";
 
+import { NavPendingSpinner } from "@/components/layout/NavPendingSpinner";
 import { navItems } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +40,10 @@ export function BottomNav() {
               key={item.href}
               prefetch
             >
-              <Icon className="h-4 w-4" />
+              <span className="relative">
+                <Icon className="h-4 w-4" />
+                <NavPendingSpinner className="absolute inset-0 h-4 w-4 bg-slate-950/85" />
+              </span>
               <span>{item.label}</span>
             </Link>
           );
