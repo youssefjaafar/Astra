@@ -57,7 +57,7 @@ Local auth (SQLite mode): `auth_users`/`auth_sessions` tables, scrypt password h
 
 ## Before Supabase/schema work
 
-Read the vendored skills in `.agents/skills/supabase/SKILL.md` and `.agents/skills/supabase-postgres-best-practices/SKILL.md` (pinned by `skills-lock.json` — don't edit them). Deployment/ops docs: `SUPABASE_SETUP.md`, `VERCEL_DEPLOYMENT.md`, `PRODUCTION_NOTES.md`, `GO_LIVE_CHECKLIST.md`, `QA_REPORT.md`.
+**`DATA_LAYER.md` is the reference for the SQLite/Supabase provider abstraction** (default provider, `lib/db/` shape, local auth, timezones, the `db:user` script). The `db-migration` skill covers schema changes across both providers. When touching the Supabase half, read the vendored skills in `.agents/skills/supabase/SKILL.md` and `.agents/skills/supabase-postgres-best-practices/SKILL.md` (pinned by `skills-lock.json` — don't edit them). Deployment/ops docs: `DATA_LAYER.md`, `SUPABASE_SETUP.md`, `VERCEL_DEPLOYMENT.md`, `PRODUCTION_NOTES.md`, `GO_LIVE_CHECKLIST.md`, `QA_REPORT.md`.
 
 ## graphify
 

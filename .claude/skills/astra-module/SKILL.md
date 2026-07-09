@@ -12,18 +12,19 @@ Copy the pattern of an existing module end-to-end; `tasks` is the cleanest refer
 Model on `app/tasks/page.tsx`:
 
 - `export const dynamic = "force-dynamic";`
-- async server component: `createSupabaseServerClient()` → `getUser()` → `redirect("/login")` if null
+- async server component: `createServerDbClient()` (from `lib/db/server.ts`) → `getUser()` → `redirect("/login")` if null
 - fetch initial data scoped `.eq("user_id", user.id)`, pass `initialError` (from `error?.message`) and initial data as props
+- for any "today"/"this week" window, derive the range from the profile timezone via `lib/dates.ts` helpers (`startOfDayInTimeZone` etc.) — never `setHours(0,0,0,0)`, which uses the server's midnight (see `DATA_LAYER.md`)
 - add a sibling `app/<module>/loading.tsx` using skeletons from `components/astra/index.ts` (`PageSkeleton`, `CardGridSkeleton`, …)
 
 ## 2. Client module — `components/astra/<module>/<Module>Module.tsx`
 
 - `"use client"`; owns all interactivity with `useState`/`useMemo` seeded from props — no Redux/Zustand, **no server actions**
-- mutations go through `createSupabaseBrowserClient()` (`lib/supabase/client.ts`) with optimistic local-state updates; always include `user_id` on inserts (RLS)
+- mutations go through `createBrowserDbClient()` (`lib/db/client.ts`) with optimistic local-state updates; always include `user_id` on inserts (the server enforces the session user, but keep the explicit scope)
 - forms: React Hook Form + `zodResolver` with the schema from step 3
 - build UI from shared primitives (`GlassCard`, `StatCard`, `SectionHeader`, `EmptyState` via `components/astra/index.ts`) and `components/ui/` shadcn primitives — don't hand-roll cards/buttons
 - put `data-testid="<thing>-card"` on list-item cards (existing convention: `task-card`, `habit-card`, `meal-card`, …) so E2E can target them
-- handle the unapplied-migration case: check errors with `isMissingTableError` (`lib/supabase/errors.ts`) and show setup messaging rather than a crash
+- handle the missing-table case: check errors with `isMissingTableError` (`lib/supabase/errors.ts`, works for both providers) and show setup messaging rather than a crash
 
 ## 3. Validation — `lib/validations/<module>.ts`
 

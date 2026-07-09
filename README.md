@@ -1,12 +1,12 @@
 # Astra
 
-Astra is a calm futuristic personal life operating system. It brings tasks, habits, time tracking, nutrition, training, reviews, AI insights, and settings into one mission-control cockpit backed by Supabase.
+Astra is a calm futuristic personal life operating system. It brings tasks, habits, time tracking, nutrition, training, reviews, AI insights, and settings into one mission-control cockpit. Data and auth run on **local SQLite by default**, with the original Supabase implementation preserved behind a provider abstraction (`lib/db/`) — see `DATA_LAYER.md`.
 
 ## Tech Stack
 
 - Next.js App Router
 - TypeScript
-- Supabase Auth and Postgres
+- better-sqlite3 (default) / Supabase Auth + Postgres (preserved provider)
 - Tailwind CSS
 - shadcn-style UI primitives
 - Framer Motion
@@ -21,6 +21,9 @@ Create `.env.local` and set:
 
 ```bash
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_ASTRA_DB_PROVIDER=sqlite   # "sqlite" (default) or "supabase"
+ASTRA_SQLITE_PATH=data/astra.db        # SQLite provider only
+# Supabase provider only (required when the provider is "supabase"):
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
@@ -31,13 +34,23 @@ OPENAI_MODEL=gpt-4o-mini
 AI_REQUEST_TIMEOUT_MS=15000
 ```
 
-Only `NEXT_PUBLIC_*` values are safe for browser code. Keep `SUPABASE_SERVICE_ROLE_KEY` and `OPENAI_API_KEY` server-only.
+Only `NEXT_PUBLIC_*` values are safe for browser code. Keep `SUPABASE_SERVICE_ROLE_KEY` and `OPENAI_API_KEY` server-only. Provider resolution and the full data-layer reference are in `DATA_LAYER.md`.
 
 Use `.env.example` as the canonical environment template.
 
-## Supabase Setup
+## Local SQLite Setup (default)
 
-Apply the migrations in `supabase/migrations`:
+No external service required. `data/astra.db` is created and its schema applied on first request. Create a user (there is no email-based password reset in SQLite mode):
+
+```bash
+npm run db:user -- create you@example.com yourpassword
+```
+
+Then `npm run dev` and sign in. SQLite requires a persistent filesystem — it will not run on Vercel/serverless (use the Supabase provider there; see `VERCEL_DEPLOYMENT.md`).
+
+## Supabase Setup (preserved provider)
+
+Set `NEXT_PUBLIC_ASTRA_DB_PROVIDER=supabase` and the Supabase env vars, then apply the migrations in `supabase/migrations`:
 
 ```bash
 supabase link --project-ref <project-ref>
