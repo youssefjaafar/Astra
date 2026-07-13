@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Orbit, Sparkles } from "lucide-react";
+import { ArrowRight, LogIn, Orbit, Sparkles } from "lucide-react";
 
 import { GlassCard } from "@/components/astra/GlassCard";
 import { MotionPanel } from "@/components/motion-panel";
@@ -46,6 +46,12 @@ export default function HomePage() {
                   </Link>
                 </Button>
                 <Button asChild className="h-12 px-5" variant="secondary">
+                  <Link href="/login">
+                    <LogIn className="h-4 w-4" />
+                    Sign in
+                  </Link>
+                </Button>
+                <Button asChild className="h-12 px-5" variant="ghost">
                   <Link href="/signup">Create your cockpit</Link>
                 </Button>
               </div>
