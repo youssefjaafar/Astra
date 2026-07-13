@@ -2,6 +2,46 @@
 
 Astra is a calm futuristic personal life operating system. It brings tasks, habits, time tracking, nutrition, training, reviews, AI insights, and settings into one mission-control cockpit. Data and auth run on **local SQLite by default**, with the original Supabase implementation preserved behind a provider abstraction (`lib/db/`) — see `DATA_LAYER.md`.
 
+## Screenshots
+
+A look at Astra v1.0.0.
+
+### Command Center
+
+The daily cockpit — greeting, day completion, focus state, and today's mission at a glance.
+
+![Astra Command Center](docs/screenshots/command-center.png)
+
+### Systems Status
+
+Core life systems for the day: hydration, nutrition, training, reading, prayer, meditation, sleep, and screen time, with Time Orbit and Quick Capture.
+
+![Astra Systems Status](docs/screenshots/systems-status.png)
+
+### Weekly Mission Snapshot
+
+AI Copilot Insight, a compact weekly pattern preview, and the Daily Debrief entry point.
+
+![Astra Weekly Mission Snapshot](docs/screenshots/weekly-snapshot.png)
+
+### Tasks
+
+Mission Tasks — quick add, status/priority/category filters, and Today / Upcoming grouping.
+
+![Astra Mission Tasks](docs/screenshots/tasks.png)
+
+### AI Copilot
+
+Ask Astra to plan, review, or suggest a course correction, grounded in your recent tracked context.
+
+![Astra AI Copilot](docs/screenshots/ai-copilot.png)
+
+### Onboarding
+
+Calibration step that sets the first targets Astra uses to keep days calm and honest.
+
+![Astra Onboarding](docs/screenshots/onboarding.png)
+
 ## Tech Stack
 
 - Next.js App Router
