@@ -2,6 +2,8 @@ export { AiCopilotInsightCard } from "./AiCopilotInsightCard";
 export { CommandCenterHero } from "./CommandCenterHero";
 export { DailyDebriefPreview } from "./DailyDebriefPreview";
 export { DashboardQuickCapture } from "./DashboardQuickCapture";
+export { DemoQuickCapture } from "./DemoQuickCapture";
+export { DemoModeBanner } from "./DemoModeBanner";
 export { SystemsStatusGrid } from "./SystemsStatusGrid";
 export { TimeOrbitSection } from "./TimeOrbitSection";
 export { TodaysMission } from "./TodaysMission";

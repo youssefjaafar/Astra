@@ -7,15 +7,17 @@ import type { Database } from "@/lib/types/database";
 
 type DailyReview = Database["public"]["Tables"]["daily_reviews"]["Row"];
 
-export function DailyDebriefPreview({ review }: { review: DailyReview | null }) {
+export function DailyDebriefPreview({ review, demoMode = false }: { review: DailyReview | null; demoMode?: boolean }) {
   return (
     <GlassCard className="p-5">
       <SectionHeader
         title="Daily Debrief Preview"
-        subtitle={review ? "Today's reflection loop is active." : "Close the loop gently when the day is ready."}
+        subtitle={demoMode ? "A sample reflection loop from the demo mission." : review ? "Today's reflection loop is active." : "Close the loop gently when the day is ready."}
         action={
           <Button asChild size="sm" variant="secondary">
-            <Link href="/reviews">{review ? "Open Debrief" : "Start Daily Debrief"}</Link>
+            <Link href={demoMode ? "/signup" : "/reviews"}>
+              {demoMode ? "Unlock Debriefs" : review ? "Open Debrief" : "Start Daily Debrief"}
+            </Link>
           </Button>
         }
       />

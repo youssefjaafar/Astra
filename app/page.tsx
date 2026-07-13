@@ -20,7 +20,12 @@ export default function HomePage() {
               <p className="text-xs text-slate-500">Personal mission-control</p>
             </div>
           </Link>
-          <Badge tone="cyan">Astra Online</Badge>
+          <div className="flex items-center gap-2">
+            <Button asChild className="hidden sm:inline-flex" size="sm" variant="ghost">
+              <Link href="/login">Sign in</Link>
+            </Button>
+            <Badge tone="cyan">Astra Online</Badge>
+          </div>
         </header>
 
         <section className="grid flex-1 items-center gap-10 py-16 lg:grid-cols-[1fr_420px]">
@@ -35,13 +40,13 @@ export default function HomePage() {
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button asChild className="h-12 px-5">
-                  <Link href="/dashboard">
-                    Enter Command Center
+                  <Link href="/demo">
+                    Explore live demo
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild className="h-12 px-5" variant="secondary">
-                  <Link href="/ai">Try Quick Capture</Link>
+                  <Link href="/signup">Create your cockpit</Link>
                 </Button>
               </div>
             </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Brain, Dumbbell, Home, ListChecks, Moon, Orbit, Settings, Utensils } from "lucide-react";
+import { Activity, Brain, Dumbbell, Home, ListChecks, LockKeyhole, Moon, Orbit, Settings, Utensils } from "lucide-react";
 
 import { NavPendingSpinner } from "@/components/layout/NavPendingSpinner";
 import { navItems } from "@/lib/mock-data";
@@ -20,7 +20,7 @@ const navIcons = {
   "/settings": Settings,
 };
 
-export function BottomNav() {
+export function BottomNav({ demoMode = false }: { demoMode?: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -28,7 +28,22 @@ export function BottomNav() {
       <div className="flex min-w-max gap-1">
         {navItems.map((item) => {
           const Icon = navIcons[item.href as keyof typeof navIcons] ?? Home;
-          const active = pathname === item.href;
+          const isDemoDashboard = demoMode && item.href === "/dashboard";
+          const active = isDemoDashboard || pathname === item.href;
+
+          if (demoMode && !isDemoDashboard) {
+            return (
+              <span
+                aria-disabled="true"
+                className="relative flex min-w-16 cursor-not-allowed flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 text-[11px] text-slate-700"
+                key={item.href}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.label}</span>
+                <LockKeyhole className="absolute right-2 top-1.5 h-2.5 w-2.5" />
+              </span>
+            );
+          }
 
           return (
             <Link
@@ -36,7 +51,7 @@ export function BottomNav() {
                 "flex min-w-16 flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 text-[11px] transition",
                 active ? "bg-cyan-200/10 text-cyan-100" : "text-slate-500 hover:text-slate-200",
               )}
-              href={item.href}
+              href={isDemoDashboard ? "/demo" : item.href}
               key={item.href}
               prefetch
             >

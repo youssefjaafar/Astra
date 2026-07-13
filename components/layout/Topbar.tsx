@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, Search, Signal, Sparkles, UserCircle } from "lucide-react";
+import { LogIn, LogOut, Search, ShieldCheck, Signal, Sparkles, UserCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { LiveDateTime } from "@/components/layout/LiveDateTime";
@@ -10,13 +10,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createBrowserDbClient } from "@/lib/db/client";
 
-export function Topbar() {
+export function Topbar({ demoMode = false }: { demoMode?: boolean }) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState("Commander");
   const [timezone, setTimezone] = useState("America/Detroit");
 
   useEffect(() => {
     let cancelled = false;
+
+    if (demoMode) {
+      setDisplayName("Demo Commander");
+      setTimezone("America/Toronto");
+      return () => {
+        cancelled = true;
+      };
+    }
 
     async function loadProfile() {
       try {
@@ -50,7 +58,7 @@ export function Topbar() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [demoMode]);
 
   async function handleLogout() {
     const supabase = createBrowserDbClient();
@@ -78,22 +86,30 @@ export function Topbar() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Badge className="hidden sm:inline-flex" tone="cyan">
-            <Signal className="mr-1 h-3 w-3" />
-            Astra Online
+          <Badge className="hidden sm:inline-flex" tone={demoMode ? "amber" : "cyan"}>
+            {demoMode ? <ShieldCheck className="mr-1 h-3 w-3" /> : <Signal className="mr-1 h-3 w-3" />}
+            {demoMode ? "Read-only demo" : "Astra Online"}
           </Badge>
           <Badge className="hidden md:inline-flex" tone="neutral">
             <UserCircle className="mr-1 h-3 w-3" />
             {displayName}
           </Badge>
           <Button asChild className="hidden sm:inline-flex" size="sm">
-            <Link href="/ai" prefetch>
-              Quick Capture
+            <Link href={demoMode ? "/signup" : "/ai"} prefetch>
+              {demoMode ? "Create account" : "Quick Capture"}
             </Link>
           </Button>
-          <Button aria-label="Log out" onClick={handleLogout} size="icon" type="button" variant="secondary">
-            <LogOut className="h-4 w-4" />
-          </Button>
+          {demoMode ? (
+            <Button asChild size="icon" variant="secondary">
+              <Link aria-label="Sign in" href="/login">
+                <LogIn className="h-4 w-4" />
+              </Link>
+            </Button>
+          ) : (
+            <Button aria-label="Log out" onClick={handleLogout} size="icon" type="button" variant="secondary">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </header>
