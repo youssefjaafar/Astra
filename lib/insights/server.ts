@@ -14,6 +14,7 @@ import {
   type InsightSignals,
 } from "./compute";
 import type { InsightDay, InsightStats } from "./types";
+import type { Database } from "@/lib/types/database";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createServerDbClient>>;
 
@@ -21,6 +22,7 @@ export type FetchInsightStatsResult = {
   stats: InsightStats;
   days: InsightDay[];
   timeZone: string;
+  preferences: Database["public"]["Tables"]["user_preferences"]["Row"] | null;
   error: string;
 };
 
@@ -123,6 +125,7 @@ export async function fetchInsightStats(
     stats,
     days,
     timeZone,
+    preferences: preferencesResult.data ?? null,
     error: errors.map((error) => error?.message).join(" "),
   };
 }

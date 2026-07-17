@@ -31,6 +31,10 @@ export type InsightSignals = {
 type UserPreferences = Tables["user_preferences"]["Row"];
 
 export const DEFAULT_WINDOW_DAYS = 28;
+// Trigger gate: below a week of debriefs, any split is guaranteed to fail
+// MIN_DAYS_PER_SIDE anyway, so the engine refuses to run instead of returning
+// an empty-but-billable AI call.
+export const MIN_REVIEW_DAYS_FOR_INSIGHTS = 7;
 // Below 5 days per side a mean difference is mostly noise; comparisons that
 // don't clear this bar are dropped entirely rather than reported with a
 // tiny-sample disclaimer.

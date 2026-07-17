@@ -7,6 +7,7 @@ import { AICopilotInput } from "@/components/astra/ai/AICopilotInput";
 import { AICopilotResponse } from "@/components/astra/ai/AICopilotResponse";
 import { AIInsightHistory } from "@/components/astra/ai/AIInsightHistory";
 import { DataContextIndicator } from "@/components/astra/ai/DataContextIndicator";
+import { InsightEnginePanel } from "@/components/astra/ai/InsightEnginePanel";
 import { SuggestedActionGrid } from "@/components/astra/ai/SuggestedActionGrid";
 import type { AIInsight, CopilotContextSummary } from "@/components/astra/ai/ai-utils";
 import { GlassCard, SectionHeader } from "@/components/astra";
@@ -65,6 +66,13 @@ export function AICopilotModule({ initialInsights, initialContextSummary, initia
     setInsights((current) => sortInsights([insight, ...current.filter((item) => item.id !== insight.id)]));
   }
 
+  function addGeneratedInsights(generated: AIInsight[]) {
+    setInsights((current) => {
+      const generatedIds = new Set(generated.map((item) => item.id));
+      return sortInsights([...generated, ...current.filter((item) => !generatedIds.has(item.id))]);
+    });
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -88,6 +96,8 @@ export function AICopilotModule({ initialInsights, initialContextSummary, initia
       </div>
 
       <SuggestedActionGrid disabled={loading} onSelect={sendCommand} />
+
+      <InsightEnginePanel onInsights={addGeneratedInsights} />
 
       <AICopilotResponse
         answer={answer}

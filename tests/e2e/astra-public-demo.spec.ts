@@ -33,6 +33,7 @@ test.describe("public read-only demo", () => {
       request.post("/api/ai/copilot", { data: { message: "Summarize my week" } }),
       request.post("/api/ai/daily-review", { data: { reviewDate: "2026-07-13" } }),
       request.post("/api/ai/weekly-report", { data: { weekStart: "2026-07-13" } }),
+      request.post("/api/ai/insights", { data: {} }),
     ];
 
     const responses = await Promise.all(attempts);
