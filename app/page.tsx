@@ -54,6 +54,9 @@ export default function HomePage() {
                 <Button asChild className="h-12 px-5" variant="ghost">
                   <Link href="/signup">Create your cockpit</Link>
                 </Button>
+                <Button asChild className="h-12 px-5" variant="ghost">
+                  <Link href="/guide">What Astra can do</Link>
+                </Button>
               </div>
             </div>
           </MotionPanel>

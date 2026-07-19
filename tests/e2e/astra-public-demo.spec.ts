@@ -19,6 +19,26 @@ test.describe("public read-only demo", () => {
     await expect(page.getByRole("heading", { name: "Quick Capture" })).toBeVisible();
     await expect(page.getByText("Preview only")).toBeVisible();
     await expect(page.getByText("AI Copilot Insight")).toBeVisible();
+    await expect(page.getByRole("link", { name: "User guide" })).toBeVisible();
+    expect(protectedRequests).toEqual([]);
+  });
+
+  test("public guide opens without authentication and never contacts AI or the data API", async ({ page }) => {
+    const protectedRequests: string[] = [];
+
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (url.pathname.startsWith("/api/ai/") || url.pathname === "/api/db") {
+        protectedRequests.push(`${request.method()} ${url.pathname}`);
+      }
+    });
+
+    await page.goto("/guide");
+
+    await expect(page).toHaveURL(/\/guide$/);
+    await expect(page.getByRole("heading", { name: "What Astra can do" })).toBeVisible();
+    await expect(page.getByText("Signal Correlations")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Explore live demo/ })).toBeVisible();
     expect(protectedRequests).toEqual([]);
   });
 

@@ -119,8 +119,11 @@ AI provider access is isolated in `lib/ai/provider.ts`. Current AI routes:
 - `/api/ai/daily-review`
 - `/api/ai/weekly-report`
 - `/api/ai/copilot`
+- `/api/ai/insights` — signal-correlation engine: deterministic stats from `lib/insights/` narrated by the AI
 
 The browser never receives AI provider keys.
+
+A public, static user guide describing every feature lives at `/guide` — linked from the landing page and the demo, and safe for anonymous visitors (no auth, no database, no AI calls).
 
 ## Development
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DatabaseZap, Eye, ShieldCheck } from "lucide-react";
+import { BookOpen, DatabaseZap, Eye, ShieldCheck } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,12 @@ export function DemoModeBanner() {
           </div>
         </div>
         <div className="flex shrink-0 gap-2 pl-14 xl:pl-0">
+          <Button asChild size="sm" variant="ghost">
+            <Link href="/guide">
+              <BookOpen className="h-4 w-4" />
+              User guide
+            </Link>
+          </Button>
           <Button asChild size="sm" variant="secondary">
             <Link href="/login">Sign in</Link>
           </Button>

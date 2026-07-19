@@ -15,13 +15,14 @@ Stack: Next.js 15 App Router, React 19, TypeScript (strict), better-sqlite3 (def
 
 ## Layout
 
-- `app/` — routes. Landing `page.tsx`; public static demo `demo/`; auth pages `login/`, `signup/`, `onboarding/`; protected modules `dashboard/ tasks/ habits/ time/ meals/ workouts/ reviews/ ai/ settings/` (each with `loading.tsx`); `auth/callback/route.ts` (code exchange); `api/ai/{quick-capture,daily-review,weekly-report,copilot}/route.ts`.
+- `app/` — routes. Landing `page.tsx`; public static demo `demo/`; public static user guide `guide/` (feature overview, same no-DB/no-AI constraints as the demo); auth pages `login/`, `signup/`, `onboarding/`; protected modules `dashboard/ tasks/ habits/ time/ meals/ workouts/ reviews/ ai/ settings/` (each with `loading.tsx`); `auth/callback/route.ts` (code exchange); `api/ai/{quick-capture,daily-review,weekly-report,copilot,insights}/route.ts`.
 - `components/astra/<module>/` — per-module client components; shared primitives (GlassCard, StatCard, ProgressRing, SectionHeader, EmptyState, skeletons) re-exported from `components/astra/index.ts`. `components/ui/` shadcn primitives, `components/layout/` AppShell/Sidebar/Topbar/BottomNav, `components/auth/` auth forms.
 - `lib/db/` — **the data layer every consumer imports**: `config.ts` (provider switch), `client.ts`/`server.ts` (provider-routed factories), `builder.ts` (supabase-shaped chainable builder), `types.ts` (`DbClient` interface), `sqlite/` (schema + metadata, connection, executor, local auth). `app/api/db/route.ts` executes browser ops with user scoping; `app/api/auth/[action]/route.ts` handles session/signin/signup/signout in SQLite mode.
 - `lib/supabase/` — preserved Supabase clients (see below) + `errors.ts` (`isMissingTableError`). Only used when the provider is `supabase`; do not import directly from app code — go through `lib/db/`.
 - `lib/validations/` — Zod schemas per domain; enum const arrays mirror DB CHECK constraints.
 - `lib/types/database.ts` — **manually maintained** DB types (not generated).
 - `lib/ai/` — `provider.ts` (server-only, the only place that talks to the AI provider), `copilot-context.ts`, `prompts/`.
+- `lib/insights/` — deterministic Layer 1 of the insight engine: `compute.ts` (pure day-bucketing + factor comparisons + goal hit-rates; the LLM narrates these numbers, never computes them), `server.ts` (`fetchInsightStats`, server-only), `types.ts`. Consumed by `api/ai/insights` (7-review minimum gate, replaces same-window rows in `ai_insights`).
 - `lib/auth/` — `redirect.ts` (open-redirect guards), `errors.ts` (friendly auth error copy).
 - `middleware.ts` — auth gatekeeper (see below). `supabase/migrations/` — SQL migrations, applied manually.
 
@@ -33,7 +34,7 @@ The deliberate exception is `app/demo/page.tsx`: it is a public, statically gene
 
 ## Public demo security boundary
 
-- `/demo` is public and intentionally absent from both `protectedRoutes` and `config.matcher` in `middleware.ts`. `/dashboard` and every real module remain protected.
+- `/demo` is public and intentionally absent from both `protectedRoutes` and `config.matcher` in `middleware.ts`. `/dashboard` and every real module remain protected. `/guide` (user-facing feature overview) is public and static under the same constraints: no DB client, no auth, no `/api/db` or `/api/ai/*` calls — the public e2e spec covers it too.
 - Demo visitors stay unauthenticated. Do not implement the demo with a shared account, seeded credentials, Supabase anonymous sign-in, broader `anon` grants, or relaxed RLS policies.
 - The demo Quick Capture is `DemoQuickCapture`, a static preview. Never reuse `DashboardQuickCapture` there: it writes `quick_captures`, calls the paid quick-capture endpoint, and can insert structured records.
 - Prewritten demo AI content is presentation data, not generated at request time. All AI route handlers must continue verifying `auth.getUser()` before `generateJsonCompletion()` can run.
