@@ -2,7 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Brain, Dumbbell, Home, ListChecks, LockKeyhole, Moon, Orbit, Settings, Utensils } from "lucide-react";
+import {
+  Activity,
+  BookOpen,
+  Brain,
+  Dumbbell,
+  Home,
+  ListChecks,
+  LockKeyhole,
+  Moon,
+  Orbit,
+  Settings,
+  Utensils,
+} from "lucide-react";
 
 import { NavPendingSpinner } from "@/components/layout/NavPendingSpinner";
 import { navItems } from "@/lib/mock-data";
@@ -63,6 +75,17 @@ export function BottomNav({ demoMode = false }: { demoMode?: boolean }) {
             </Link>
           );
         })}
+        <Link
+          className={cn(
+            "flex min-w-16 flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 text-[11px] transition",
+            pathname === "/guide" ? "bg-cyan-200/10 text-cyan-100" : "text-slate-500 hover:text-slate-200",
+          )}
+          href="/guide"
+          prefetch
+        >
+          <BookOpen className="h-4 w-4" />
+          <span>Guide</span>
+        </Link>
       </div>
     </nav>
   );

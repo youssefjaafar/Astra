@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
+  BookOpen,
   Brain,
   Dumbbell,
   Home,
@@ -103,6 +104,14 @@ export function Sidebar({ demoMode = false }: { demoMode?: boolean }) {
               ? "Sample telemetry only. No personal data or AI credits are used."
               : "Keep the signal clean. Capture, guide, review, correct."}
           </p>
+          <Link
+            className="mt-3 inline-flex items-center gap-2 text-xs text-slate-400 transition hover:text-cyan-100"
+            href="/guide"
+            prefetch
+          >
+            <BookOpen className="h-3.5 w-3.5 shrink-0" />
+            Guide: what Astra can do
+          </Link>
           {demoMode ? (
             <Link
               className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-md bg-cyan-300 px-3 text-xs font-medium text-slate-950 shadow-glow transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
