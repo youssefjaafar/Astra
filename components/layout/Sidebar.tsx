@@ -36,7 +36,7 @@ export function Sidebar({ demoMode = false }: { demoMode?: boolean }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden border-r border-white/10 bg-slate-950/40 backdrop-blur-xl lg:fixed lg:inset-y-0 lg:left-0 lg:block lg:w-72">
+    <aside className="hidden border-r border-white/10 bg-slate-950/40 backdrop-blur-xl lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:block lg:w-72">
       <div className="flex h-full flex-col px-4 py-5">
         <Link className="flex items-center gap-3 px-2" href={demoMode ? "/demo" : "/dashboard"} prefetch>
           <div className="grid h-11 w-11 place-items-center rounded-xl border border-cyan-200/30 bg-cyan-200/10 shadow-glow">
