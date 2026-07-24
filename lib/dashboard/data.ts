@@ -219,7 +219,7 @@ export async function getDashboardData(supabase: SupabaseServerClient, userId: s
     weekMeditation,
     weekReading,
   });
-  const dayCompletion = Math.round(statuses.reduce((sum, status) => sum + status.progress, 0) / Math.max(statuses.length, 1));
+  const dayCompletion = calculateDayCompletion(now, preferences, timeZone);
   const deepWorkMinutes = todayMinutesByCategory.deep_work ?? 0;
   const scrollingMinutes = todayMinutesByCategory.scrolling ?? 0;
 
@@ -250,6 +250,54 @@ export async function getDashboardData(supabase: SupabaseServerClient, userId: s
     }),
     error: errors.map((error) => error?.message).join(" ") || null,
   };
+}
+
+function calculateDayCompletion(now: Date, preferences: UserPreferences | null, timeZone: string): number {
+  const wakeTimeStr = preferences?.wake_time ?? "06:30";
+  const sleepTimeStr = preferences?.sleep_time ?? "22:30";
+
+  const [wakeHour, wakeMin] = wakeTimeStr.split(":").map(Number);
+  const [sleepHour, sleepMin] = sleepTimeStr.split(":").map(Number);
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const localTimeStr = formatter.format(now);
+  const [nowHour, nowMin] = localTimeStr.split(":").map(Number);
+  const nowTotalMinutes = nowHour * 60 + nowMin;
+  const wakeTotalMinutes = wakeHour * 60 + wakeMin;
+  const sleepTotalMinutes = sleepHour * 60 + sleepMin;
+
+  // Handle case where sleep time is next day (e.g., 22:30 to 06:30)
+  if (sleepTotalMinutes < wakeTotalMinutes) {
+    // Before midnight
+    if (nowTotalMinutes >= wakeTotalMinutes) {
+      const elapsedMinutes = nowTotalMinutes - wakeTotalMinutes;
+      const dayMinutes = 24 * 60 - wakeTotalMinutes + sleepTotalMinutes;
+      return Math.min(100, Math.round((elapsedMinutes / dayMinutes) * 100));
+    }
+    // After midnight (before sleep time)
+    if (nowTotalMinutes < sleepTotalMinutes) {
+      const elapsedMinutes = 24 * 60 - wakeTotalMinutes + nowTotalMinutes;
+      const dayMinutes = 24 * 60 - wakeTotalMinutes + sleepTotalMinutes;
+      return Math.min(100, Math.round((elapsedMinutes / dayMinutes) * 100));
+    }
+    // After sleep time, day hasn't started yet
+    return 0;
+  }
+
+  // Same-day sleep (e.g., 06:30 to 22:30)
+  if (nowTotalMinutes < wakeTotalMinutes || nowTotalMinutes >= sleepTotalMinutes) {
+    return 0; // Before wake or after sleep
+  }
+
+  const elapsedMinutes = nowTotalMinutes - wakeTotalMinutes;
+  const dayMinutes = sleepTotalMinutes - wakeTotalMinutes;
+  return Math.round((elapsedMinutes / dayMinutes) * 100);
 }
 
 function getMission(tasks: Task[], latestInsight: AiInsight | null, now: Date, todayStart: Date, tomorrowStart: Date): DashboardMission {

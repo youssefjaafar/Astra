@@ -8,18 +8,7 @@ import {
 } from "@/components/astra/settings/settings-utils";
 import { appearanceSettingsSchema } from "@/lib/validations/settings";
 
-type LayerKey =
-  | "nebula"
-  | "starFar"
-  | "starMid"
-  | "starNear"
-  | "grid"
-  | "warpA"
-  | "warpB"
-  | "window"
-  | "hudLeft"
-  | "hudRight"
-  | "console";
+type LayerKey = "grid" | "warpA" | "warpB" | "window" | "hudLeft" | "hudRight" | "console";
 
 type LayerSpec = {
   mx: number;
@@ -32,10 +21,6 @@ type LayerSpec = {
 // a shared custom property (`--mx`/`--my`) that every layer's stylesheet
 // rule had to re-resolve via `calc()` on every mouse-driven frame.
 const LAYER_CONFIG: Record<LayerKey, LayerSpec> = {
-  nebula: { mx: -28, my: -24, render: (x, y) => `translate(${x}px, ${y}px) scale(1.04)` },
-  starFar: { mx: -16, my: -12, render: (x, y) => `translate(${x}px, ${y}px)` },
-  starMid: { mx: -34, my: -26, render: (x, y) => `translate(${x}px, ${y}px)` },
-  starNear: { mx: -58, my: -44, render: (x, y) => `translate(${x}px, ${y}px)` },
   grid: { mx: -18, my: -14, render: (x, y) => `translate(${x}px, ${y}px)` },
   warpA: { mx: -36, my: -16, render: (x, y) => `translate(${x}px, ${y}px)` },
   warpB: { mx: -36, my: -16, render: (x, y) => `translate(${x}px, ${y}px)` },
@@ -142,10 +127,9 @@ export function CosmicBackground() {
         <div className="astra-cockpit-vignette" />
       ) : (
         <>
-          <div className="astra-nebula-layer" ref={setLayerRef("nebula")} />
-          <div className="astra-star-layer astra-star-layer-far" ref={setLayerRef("starFar")} />
-          <div className="astra-star-layer astra-star-layer-mid" ref={setLayerRef("starMid")} />
-          <div className="astra-star-layer astra-star-layer-near" ref={setLayerRef("starNear")} />
+          <div className="astra-star-layer astra-star-layer-far" />
+          <div className="astra-star-layer astra-star-layer-mid" />
+          <div className="astra-star-layer astra-star-layer-near" />
           <div className="astra-orbital-grid astra-grid-layer" ref={setLayerRef("grid")} />
           <div className="astra-warp-lane astra-warp-lane-a" ref={setLayerRef("warpA")} />
           <div className="astra-warp-lane astra-warp-lane-b" ref={setLayerRef("warpB")} />
