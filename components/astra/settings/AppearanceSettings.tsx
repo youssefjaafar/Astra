@@ -80,8 +80,7 @@ export function AppearanceSettings({ onSuccess, onError }: AppearanceSettingsPro
           </Field>
           <Field label="Background style" error={form.formState.errors.backgroundStyle?.message}>
             <Select disabled={!loaded} {...form.register("backgroundStyle")}>
-              <option value="starfield">Starfield</option>
-              <option value="nebula">Nebula</option>
+              <option value="static-stars">Static stars</option>
               <option value="minimal-dark">Minimal dark</option>
             </Select>
           </Field>

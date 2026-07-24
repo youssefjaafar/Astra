@@ -10,7 +10,7 @@ export type SettingsTab = "profile" | "targets" | "ai" | "appearance" | "data";
 export const defaultAppearanceSettings: AppearanceSettingsInput = {
   cockpitIntensity: "balanced",
   motionLevel: "normal",
-  backgroundStyle: "starfield",
+  backgroundStyle: "static-stars",
 };
 
 export const appearanceStorageKey = "astra:appearance-preferences";

@@ -39,9 +39,9 @@ export function CosmicBackground() {
   const [parallaxAllowed, setParallaxAllowed] = useState(true);
 
   // Read the user's saved Appearance preferences (Settings > Appearance).
-  // "Minimal dark" skips the animated layers entirely; "Low" motion keeps
-  // them but disables the pointer-driven parallax. Both are real fallbacks
-  // for anyone still seeing background-driven flicker on their GPU/browser.
+  // "Minimal dark" skips all background layers, rendering only the vignette;
+  // "Low" motion keeps the background but disables pointer-driven parallax.
+  // Both are fallbacks for anyone experiencing rendering issues.
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(appearanceStorageKey);

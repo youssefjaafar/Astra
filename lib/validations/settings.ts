@@ -39,7 +39,7 @@ export const aiBehaviorSettingsSchema = z.object({
 export const appearanceSettingsSchema = z.object({
   cockpitIntensity: z.enum(["calm", "balanced", "immersive"]),
   motionLevel: z.enum(["low", "normal", "high"]),
-  backgroundStyle: z.enum(["starfield", "nebula", "minimal-dark"]),
+  backgroundStyle: z.enum(["static-stars", "minimal-dark"]),
 });
 
 export type ProfileSettingsInput = z.infer<typeof profileSettingsSchema>;
